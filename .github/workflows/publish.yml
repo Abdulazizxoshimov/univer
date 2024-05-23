@@ -42,7 +42,7 @@ jobs:
           username: ${{ env.SERVER_USERNAME }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
-            docker stop blog || true
-            docker rm blog || true
+            docker stop univer || true
+            docker rm univer || true
             docker image rm ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} || true
-            docker run -d --name blog -e POSTGRES_HOST=${{ env.DATABASE_HOST }} -e POSTGRES_USER=${{ env.DATABASE_USER }} -e POSTGRES_PASSWORD=${{ env.DATABASE_PASSWORD }} -p 8000:8000 ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+            docker run -d --name univer -e POSTGRES_HOST=${{ env.DATABASE_HOST }} -e POSTGRES_USER=${{ env.DATABASE_USER }} -e POSTGRES_PASSWORD=${{ env.DATABASE_PASSWORD }} -p 7777:7777 ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
