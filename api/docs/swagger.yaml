@@ -1,0 +1,1749 @@
+definitions:
+  models.Category:
+    properties:
+      category_id:
+        type: string
+      category_name:
+        type: string
+    type: object
+  models.CategoryReq:
+    properties:
+      category_name:
+        type: string
+    type: object
+  models.Comment:
+    properties:
+      dislikes:
+        type: integer
+      id:
+        type: string
+      likes:
+        type: integer
+      message:
+        type: string
+      ownerId:
+        type: string
+      postId:
+        type: string
+    type: object
+  models.CommentCreate:
+    properties:
+      message:
+        type: string
+      postId:
+        type: string
+    type: object
+  models.CommentUpdate:
+    properties:
+      id:
+        type: string
+      message:
+        type: string
+    type: object
+  models.CreateLike:
+    properties:
+      commentId:
+        type: string
+      postId:
+        type: string
+      status:
+        type: boolean
+    type: object
+  models.CreateResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  models.Error:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Like:
+    properties:
+      commentId:
+        type: string
+      ownerId:
+        type: string
+      postId:
+        type: string
+      status:
+        type: boolean
+    type: object
+  models.ListCategory:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/models.Category'
+        type: array
+      total_count:
+        type: integer
+    type: object
+  models.ListComment:
+    properties:
+      comment:
+        items:
+          $ref: '#/definitions/models.Comment'
+        type: array
+      totalCount:
+        type: integer
+    type: object
+  models.ListPost:
+    properties:
+      post:
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+      totalCount:
+        type: integer
+    type: object
+  models.ListUser:
+    properties:
+      totcal_count:
+        type: integer
+      user:
+        items:
+          $ref: '#/definitions/models.UserResponse'
+        type: array
+    type: object
+  models.Login:
+    properties:
+      password:
+        example: '@Abdulaziz2004'
+        type: string
+      usernameoremail:
+        example: abdulazizxoshimov22@gmail.com
+        type: string
+    type: object
+  models.Post:
+    properties:
+      categoryId:
+        type: string
+      id:
+        type: string
+      path:
+        type: string
+      science:
+        type: string
+      theme:
+        type: string
+      userId:
+        type: string
+      views:
+        type: integer
+    type: object
+  models.PostUpdateReq:
+    properties:
+      categoryId:
+        type: string
+      id:
+        type: string
+      science:
+        type: string
+      theme:
+        type: string
+    type: object
+  models.ResetPassword:
+    properties:
+      email:
+        type: string
+      new_password:
+        type: string
+      otp:
+        type: string
+    type: object
+  models.Response:
+    properties:
+      response:
+        type: string
+    type: object
+  models.TokenResp:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      role:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.UpdatePasswordReq:
+    properties:
+      id:
+        type: string
+      password:
+        type: string
+    type: object
+  models.UpdateReq:
+    properties:
+      bio:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      phoneNumber:
+        type: string
+      userName:
+        type: string
+    type: object
+  models.User:
+    properties:
+      bio:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      imageUrl:
+        type: string
+      password:
+        type: string
+      phoneNumber:
+        type: string
+      refreshToken:
+        type: string
+      role:
+        type: string
+      userName:
+        type: string
+    type: object
+  models.UserRegister:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phoneNumber:
+        type: string
+      userName:
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      access_token:
+        type: string
+      bio:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      phone_number:
+        type: string
+      refresh_token:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: 'Contacs: https://t.me/Abuzada0401'
+  title: Lib-Univer
+paths:
+  /v1/categories:
+    get:
+      consumes:
+      - application/json
+      description: This API for getting categories
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListCategory'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: List Category
+      tags:
+      - category
+  /v1/category:
+    post:
+      consumes:
+      - application/json
+      description: This API for create a new category for product
+      parameters:
+      - description: Create Category Model
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.CategoryReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Create Category
+      tags:
+      - category
+    put:
+      consumes:
+      - application/json
+      description: This API for update a category
+      parameters:
+      - description: Create Category Model
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Update Category
+      tags:
+      - category
+  /v1/category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This API for delete a category with id
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete Category
+      tags:
+      - category
+    get:
+      consumes:
+      - application/json
+      description: This API for getting a category with id
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Category'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Get Category
+      tags:
+      - category
+  /v1/comment:
+    post:
+      consumes:
+      - application/json
+      description: This api for create commment to post
+      parameters:
+      - description: Comment Create Model
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.CommentCreate'
+      produces:
+      - application/json
+      responses:
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Create Comment
+      tags:
+      - comment
+    put:
+      consumes:
+      - application/json
+      description: Api for update a Comment
+      parameters:
+      - description: Update Comment Model
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.CommentUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommentUpdate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Update Comment
+      tags:
+      - comment
+  /v1/comment/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Api for delete a comment
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete Comment
+      tags:
+      - comment
+    get:
+      consumes:
+      - application/json
+      description: Api for getting a comment
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Get Comment
+      tags:
+      - comment
+  /v1/comment/dislike:
+    post:
+      consumes:
+      - application/json
+      description: This api for create coment's like
+      parameters:
+      - description: Create DisLike Model
+        in: body
+        name: like
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateLike'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Like'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Create DisLike
+      tags:
+      - comment
+  /v1/comment/like:
+    post:
+      consumes:
+      - application/json
+      description: This api for create coment's like
+      parameters:
+      - description: Create Like Model
+        in: body
+        name: like
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateLike'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Like'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Create Like
+      tags:
+      - comment
+  /v1/comments:
+    get:
+      consumes:
+      - application/json
+      description: Api for getting list comment
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListComment'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: List Comment
+      tags:
+      - comment
+  /v1/del/post/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Api for getting a deleted post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Get  Delete Post
+      tags:
+      - post
+  /v1/del/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Api for getting a deleted user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Get  Delete User
+      tags:
+      - users
+  /v1/forgot/{email}:
+    post:
+      consumes:
+      - application/json
+      description: Api for sending otp
+      parameters:
+      - description: Email
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Forget Password
+      tags:
+      - registration
+  /v1/google/callback:
+    get:
+      description: Handles the callback from Google OAuth 2.0, exchanges code for
+        token and retrieves user info
+      parameters:
+      - description: OAuth State
+        in: query
+        name: state
+        required: true
+        type: string
+      - description: OAuth Code
+        in: query
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: User info
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Handle Google callback
+      tags:
+      - auth
+  /v1/google/login:
+    get:
+      description: Redirects the user to Google's OAuth 2.0 consent page
+      responses:
+        "303":
+          description: Redirect
+          schema:
+            type: string
+      summary: Redirect to Google for login
+      tags:
+      - auth
+  /v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Api for login user
+      parameters:
+      - description: Login Model
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Login
+      tags:
+      - registration
+  /v1/post:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Api for create a new Post
+      parameters:
+      - description: Theme
+        in: query
+        name: theme
+        required: true
+        type: string
+      - description: Science
+        in: query
+        name: science
+        required: true
+        type: string
+      - description: Category Id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Create Post
+      tags:
+      - post
+    put:
+      consumes:
+      - application/json
+      description: Api for update a post
+      parameters:
+      - description: Update Post Model
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.PostUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PostUpdateReq'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Update Post
+      tags:
+      - post
+  /v1/post/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Api for delete a post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete Post
+      tags:
+      - post
+    get:
+      consumes:
+      - application/json
+      description: Api for getting a post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Get Post
+      tags:
+      - post
+  /v1/post/comments:
+    get:
+      consumes:
+      - application/json
+      description: Api for getting post's comment
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: User Id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListComment'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: List Comment
+      tags:
+      - comment
+  /v1/posts:
+    get:
+      consumes:
+      - application/json
+      description: Api for getting list post
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListPost'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: List Post
+      tags:
+      - post
+  /v1/register:
+    post:
+      consumes:
+      - application/json
+      description: Api for register user
+      parameters:
+      - description: Register User
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRegister'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Register
+      tags:
+      - registration
+  /v1/reset-password:
+    put:
+      consumes:
+      - application/json
+      description: Api for reset password
+      parameters:
+      - description: Reset Password
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResetPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Reset Password
+      tags:
+      - registration
+  /v1/search:
+    get:
+      consumes:
+      - application/json
+      description: Api for searching by theme
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Theme
+        in: query
+        name: theme
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListPost'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Search
+      tags:
+      - search
+  /v1/token/{refresh}:
+    get:
+      consumes:
+      - application/json
+      description: Api for updated acces token
+      parameters:
+      - description: Refresh Token
+        in: path
+        name: refresh
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TokenResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: New Token
+      tags:
+      - registration
+  /v1/user:
+    post:
+      consumes:
+      - application/json
+      description: Api for create a new user
+      parameters:
+      - description: Create User Model
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRegister'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Create User
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Api for update a user
+      parameters:
+      - description: Update User Model
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Update User
+      tags:
+      - users
+  /v1/user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Api for delete a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete User
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Api for getting a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Get User
+      tags:
+      - users
+  /v1/user/comments:
+    get:
+      consumes:
+      - application/json
+      description: Api for getting user's comment
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: User Id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListComment'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: List Comment
+      tags:
+      - comment
+  /v1/user/password:
+    put:
+      consumes:
+      - application/json
+      description: Api for updating user's password
+      parameters:
+      - description: Update User Password
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Update Password
+      tags:
+      - users
+  /v1/user/posts:
+    get:
+      consumes:
+      - application/json
+      description: Api for getting user's posts
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: User Id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListPost'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: List Post
+      tags:
+      - post
+  /v1/user/profile:
+    put:
+      consumes:
+      - application/json
+      description: Api for updating user's profile
+      parameters:
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Update Profile
+      tags:
+      - users
+  /v1/users:
+    get:
+      consumes:
+      - application/json
+      description: Api for getting list user
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: List User
+      tags:
+      - users
+  /v1/users/verify:
+    post:
+      consumes:
+      - application/json
+      description: Api for verify register
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Verify
+      tags:
+      - registration
+  /v1/verify:
+    post:
+      consumes:
+      - application/json
+      description: Api for verify user
+      parameters:
+      - description: Email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: OTP
+        in: query
+        name: otp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Verify OTP
+      tags:
+      - registration
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

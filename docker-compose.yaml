@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  migrate:
+    image: migrate/migrate
+    networks:
+      - univer
+    volumes:
+      - ./migrations:/migrations
+    command: [ "-path", "/migrations", "-database", "postgres://postgres:4444@postgres:5432/univerdb?sslmode=disable", "up" ]
+    depends_on:
+      - postgresdb
+
+  postgresdb:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 4444
+      PGDATA: /data/postgres
+      POSTGRES_DB: univerdb
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5332:5332"  # Use standard port for clarity
+    networks:
+      - univer
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  app:
+    container_name: app
+    build: .
+    ports:
+      - "7777:7777"
+    networks:
+      - univer
+    depends_on:
+      - redisdb
+
+  redisdb:
+    container_name: redisdb
+    image: redis
+    ports:
+      - "6378:6378"
+    networks:
+      - univer
+
+  minio:
+    container_name: minio
+    image: docker.io/bitnami/minio:2024
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      - MINIO_ROOT_USER=xoshimov
+      - MINIO_ROOT_PASSWORD=xoshimov
+      - MINIO_DEFAULT_BUCKETS=univer
+    volumes:
+      - minio_data:/data
+    networks:
+      - univer
+
+networks:
+  univer:
+    driver: bridge
+
+volumes:
+  db:
+  minio_data:
+    driver: local
