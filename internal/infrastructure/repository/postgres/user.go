@@ -9,6 +9,7 @@ import (
 	postgres "univer/internal/pkg/storage"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/k0kubun/pp"
 )
 
 const (
@@ -86,7 +87,6 @@ func (p userRepo) Update(ctx context.Context, user *entity.User) (*entity.User, 
 		"username":     user.UserName,
 		"email":        user.Email,
 		"phone_number": user.PhoneNumber,
-		"password":     user.Password,
 		"bio":          user.Bio,
 		"image_url":    user.ImageUrl,
 		"updated_at":   user.UpdatedAt,
@@ -298,22 +298,38 @@ func (p userRepo) List(ctx context.Context, limit int, offset int, filter map[st
 	return &users, nil
 }
 
-func (p userRepo) UniqueEmail(ctx context.Context, email string) (bool, error) {
+func (p userRepo) CheckUnique(ctx context.Context, filter *entity.GetReq) (bool, error) {
 	ctx, span := otlp.Start(ctx, serviceNameUserService, spanNameUserService + "UniqueEmail")
 	defer span.End()
 
 	queryBuilder := p.db.Sq.Builder.Select("COUNT(1)").
-	From(p.tableName).
-	Where(squirrel.Eq{"email": email}).Where("deleted_at is null")
+	From(p.tableName)
 
-	query, _, err := queryBuilder.ToSql()
+	for key, value := range filter.Filter{
+		if key == "email"{
+			queryBuilder = queryBuilder.Where(squirrel.Eq{key: value})
+		}
+		if key == "username"{
+			queryBuilder = queryBuilder.Where(squirrel.Eq{key: value})
+		}
+		if key == "phone_number"{
+			queryBuilder = queryBuilder.Where(squirrel.Eq{key: value})
+		}
+	}
+
+	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
+
+	
+	query, args, err := queryBuilder.ToSql()
 
 	if err != nil {
 		return false, p.db.ErrSQLBuild(err, fmt.Sprintf("%s %s", p.tableName, "isUnique"))
 	}
+	pp.Println(query)
+	pp.Println(args...)
 
 	var count int
-	err = p.db.QueryRow(ctx, query, email).Scan(&count)
+	err = p.db.QueryRow(ctx, query, args...).Scan(&count)
 	if err != nil {
 		return true, p.db.Error(err)
 	}
@@ -440,4 +456,28 @@ func (p userRepo) DeleteProfile(ctx context.Context, id string)error{
 	return nil
 }
 
+func (p userRepo) UpdateToPremium(ctx context.Context, id string) (*entity.Response, error) {
+	clauses := map[string]any{
+		"role": "prouser",
+	}
+	sqlStr, args, err := p.db.Sq.Builder.
+		Update(p.tableName).
+		SetMap(clauses).
+		Where(p.db.Sq.Equal("id", id)).
+		Where("deleted_at IS NULL").
+		ToSql()
+	if err != nil {
+		return &entity.Response{Status: false}, p.db.ErrSQLBuild(err, p.tableName+" update")
+	}
 
+	commandTag, err := p.db.Exec(ctx, sqlStr, args...)
+	if err != nil {
+		return &entity.Response{Status: false}, p.db.Error(err)
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return &entity.Response{Status: false}, p.db.Error(fmt.Errorf("no sql rows"))
+	}
+
+	return &entity.Response{Status: true}, nil
+}

@@ -8,6 +8,7 @@ import (
 	tokens "univer/internal/pkg/token"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/minio/minio-go/v7"
 	"go.uber.org/zap"
 )
 
@@ -19,6 +20,7 @@ type HandlerV1 struct {
 	RefreshToken   tokens.JWTHandler
 	Enforcer       *casbin.Enforcer
 	Service        clientService.ServiceClient
+	MinIO          *minio.Client
 }
 
 // HandlerV1Config ...
@@ -30,6 +32,7 @@ type HandlerV1Config struct {
 	RefreshToken   tokens.JWTHandler
 	Enforcer       *casbin.Enforcer
 	Service        clientService.ServiceClient
+	MinIO          *minio.Client
 }
 
 // New ...
@@ -42,5 +45,6 @@ func New(c *HandlerV1Config) *HandlerV1 {
 		Enforcer:       c.Enforcer,
 		RefreshToken:   c.RefreshToken,
 		Service:        c.Service,
+		MinIO:          c.MinIO,
 	}
 }

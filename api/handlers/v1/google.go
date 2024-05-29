@@ -1,14 +1,14 @@
 package v1
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"image/png"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"path/filepath"
-	"time"
 	"univer/api/models"
 	"univer/internal/entity"
 	"univer/internal/pkg/config"
@@ -19,7 +19,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 // GoogleLogin godoc
@@ -47,15 +46,7 @@ func (h *HandlerV1) GoogleLogin(c *gin.Context) {
 // @Failure 500 {string} string "Internal Server Error"
 // @Router /v1/google/callback [get]
 func (h *HandlerV1) GoogleCallback(c *gin.Context) {
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	query := c.Request.URL.Query()
 	state := query.Get("state")
@@ -125,9 +116,12 @@ func (h *HandlerV1) GoogleCallback(c *gin.Context) {
 		log.Println(err)
 		return
 	}
+	filter := map[string]string{
+		"email": body.Email,
+	}
 
-	status, err := h.Service.User().UniqueEmail(ctx, &entity.IsUnique{
-		Email: body.Email,
+	status, err := h.Service.User().CheckUnique(ctx, &entity.GetReq{
+		Filter: filter,
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
@@ -147,6 +141,24 @@ func (h *HandlerV1) GoogleCallback(c *gin.Context) {
 				Message: err.Error(),
 			})
 		}
+		h.RefreshToken = tokens.JWTHandler{
+			Sub:        responesUser.Id,
+			Role:       responesUser.Role,
+			SigningKey: h.Config.Token.SignInKey,
+			Log:        h.Logger,
+			Email:      body.Email,
+		}
+
+		access, refresh, err := h.RefreshToken.GenerateAuthJWT()
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.Error{
+				Message: err.Error(),
+			})
+			log.Println(err)
+			return
+		}
+
 		c.JSON(http.StatusOK, models.UserResponse{
 			Id:          responesUser.Id,
 			UserName:    responesUser.Email,
@@ -160,46 +172,8 @@ func (h *HandlerV1) GoogleCallback(c *gin.Context) {
 		})
 		return
 	}
-	endpoint := h.Config.Minio.Endpoint
-	accessKeyID := h.Config.Minio.AccessKeyID
-	secretAccessKey := h.Config.Minio.SecretAcessKey
-	bucketName := h.Config.Minio.ImageUrlUploadBucketName
 
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: false,
-	})
-	if err != nil {
-		panic(err)
-	}
-	err = minioClient.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{})
-	if err != nil {
-		if minio.ToErrorResponse(err).Code == "BucketAlreadyOwnedByYou" {
-
-		} else {
-			c.JSON(http.StatusInternalServerError, models.Error{
-				Message: err.Error(),
-			})
-			log.Println(err.Error())
-			return
-		}
-	}
-
-	policy := fmt.Sprintf(`{
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Principal": {
-                    "AWS": ["*"]
-                },
-                "Action": ["s3:GetObject"],
-                "Resource": ["arn:aws:s3:::%s/*"]
-            }
-        ]
-    }`, bucketName)
-
-	err = minioClient.SetBucketPolicy(context.Background(), bucketName, policy)
+	image, err := image.Image(body.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
 			Message: err.Error(),
@@ -207,16 +181,25 @@ func (h *HandlerV1) GoogleCallback(c *gin.Context) {
 		log.Println(err.Error())
 		return
 	}
-	image.Image(body.Email, id)
-
-	uploadDir := "./avatar"
 
 	objectName := id + ".png"
+	contentType := c.ContentType()
 
-	uploadPath := filepath.Join(uploadDir, objectName)
+	var buf bytes.Buffer
+	err = png.Encode(&buf, image)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.Error{
+			Message: err.Error(),
+		})
+		log.Println(err.Error())
+		return
+	}
 
-	contentType := "image/jpeg"
-	_, err = minioClient.FPutObject(context.Background(), bucketName, objectName, uploadPath, minio.PutObjectOptions{
+	reader := bytes.NewReader(buf.Bytes())
+	if h.MinIO == nil {
+		return
+	}
+	_, err = h.MinIO.PutObject(ctx, h.Config.Minio.ImageUrlUploadBucketName, objectName, reader, int64(reader.Len()), minio.PutObjectOptions{
 		ContentType: contentType,
 	})
 
@@ -228,7 +211,7 @@ func (h *HandlerV1) GoogleCallback(c *gin.Context) {
 		return
 	}
 
-	minioURL := fmt.Sprintf("http://%s/%s/%s", endpoint, bucketName, objectName)
+	minioURL := fmt.Sprintf("http://%s/%s/%s", h.Config.Minio.Endpoint, h.Config.Minio.ImageUrlUploadBucketName, objectName)
 
 	Resp, err := h.Service.User().CreateUser(ctx, &entity.User{
 		Id:       id,

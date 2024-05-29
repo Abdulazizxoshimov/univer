@@ -1,13 +1,13 @@
 package v1
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"image/png"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"time"
 	"univer/api/models"
 	"univer/internal/entity"
@@ -20,7 +20,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/spf13/cast"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -33,6 +32,7 @@ import (
 // @Param 			User body models.UserRegister true "Register User"
 // @Success 		200 {object} models.User
 // @Failure 		400 {object} models.Error
+// @Failure         409 {object} models.Error
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/register [POST]
 func (h *HandlerV1) Register(c *gin.Context) {
@@ -80,21 +80,26 @@ func (h *HandlerV1) Register(c *gin.Context) {
 		return
 	}
 
-	IsPhoneNumber := validation.PhoneUz(body.PhoneNumber)
-	if !IsPhoneNumber {
+	
+	usernameStatus := validation.ValidateUsername(body.UserName)
+	if !usernameStatus{
 		c.JSON(http.StatusBadRequest, models.Error{
-			Message: "Incorrect telephone number!!!",
+			Message: "Username is invalid!!!",
 		})
-		log.Println(err)
+		log.Println("Username is invalid!!!")
 		return
-	}
+	} 
+	
 
-	exists, err := h.Service.User().UniqueEmail(ctx, &entity.IsUnique{
-		Email: body.Email,
+	filter := map[string]string{
+		"email": body.Email,
+	}
+	exists, err := h.Service.User().CheckUnique(ctx, &entity.GetReq{
+		Filter: filter,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
+			Message: "Oops something went wrong!!!",
 		})
 		log.Println(err)
 		return
@@ -106,8 +111,7 @@ func (h *HandlerV1) Register(c *gin.Context) {
 		})
 		return
 	}
-
-	radomNumber, err := regtool.SendCodeGmail(body.Email, "ClothesStore\n", "./internal/pkg/regtool/emailotp.html", h.Config)
+	radomNumber, err := regtool.SendCodeGmail(body.Email, "Univer\n", "./internal/pkg/regtool/emailotp.html", h.Config)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
 			Message: err.Error(),
@@ -209,46 +213,21 @@ func (h *HandlerV1) Verify(c *gin.Context) {
 		})
 	}
 
-	endpoint := h.Config.Minio.Endpoint
-	accessKeyID := h.Config.Minio.AccessKeyID
-	secretAccessKey := h.Config.Minio.SecretAcessKey
-	bucketName := h.Config.Minio.ImageUrlUploadBucketName
-
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: false,
-	})
+	image, err := image.Image(user.Email)
 	if err != nil {
-		panic(err)
-	}
-	err = minioClient.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{})
-	if err != nil {
-		if minio.ToErrorResponse(err).Code == "BucketAlreadyOwnedByYou" {
-
-		} else {
-			c.JSON(http.StatusInternalServerError, models.Error{
-				Message: err.Error(),
-			})
-			log.Println(err.Error())
-			return
-		}
+		c.JSON(http.StatusInternalServerError, models.Error{
+			Message: "Ooops something went wrong",
+		})
+		log.Println(err.Error())
+		return
 	}
 
-	policy := fmt.Sprintf(`{
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Principal": {
-                    "AWS": ["*"]
-                },
-                "Action": ["s3:GetObject"],
-                "Resource": ["arn:aws:s3:::%s/*"]
-            }
-        ]
-    }`, bucketName)
+	objectName := id + ".png"
+	contentType := c.ContentType()
 
-	err = minioClient.SetBucketPolicy(context.Background(), bucketName, policy)
+	var buf bytes.Buffer
+	err = png.Encode(&buf, image)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
 			Message: err.Error(),
@@ -256,16 +235,9 @@ func (h *HandlerV1) Verify(c *gin.Context) {
 		log.Println(err.Error())
 		return
 	}
-	image.Image(user.Email, id)
 
-	uploadDir := "./avatar"
-
-	objectName := id + ".png"
-
-	uploadPath := filepath.Join(uploadDir, objectName)
-
-	contentType := "image/jpeg"
-	_, err = minioClient.FPutObject(context.Background(), bucketName, objectName, uploadPath, minio.PutObjectOptions{
+	reader := bytes.NewReader(buf.Bytes())
+	_, err = h.MinIO.PutObject(ctx, h.Config.Minio.ImageUrlUploadBucketName, objectName, reader, int64(reader.Len()), minio.PutObjectOptions{
 		ContentType: contentType,
 	})
 
@@ -277,7 +249,7 @@ func (h *HandlerV1) Verify(c *gin.Context) {
 		return
 	}
 
-	minioURL := fmt.Sprintf("http://%s/%s/%s", endpoint, bucketName, objectName)
+	minioURL := fmt.Sprintf("http://%s/%s/%s", h.Config.Minio.Endpoint, h.Config.Minio.ImageUrlUploadBucketName, objectName)
 
 	_, err = h.Service.User().CreateUser(ctx, &entity.User{
 		Id:           id,
@@ -285,7 +257,6 @@ func (h *HandlerV1) Verify(c *gin.Context) {
 		Email:        user.Email,
 		Password:     hashPassword,
 		ImageUrl:     minioURL,
-		PhoneNumber:  user.PhoneNumber,
 		RefreshToken: refresh,
 		Role:         cast.ToString(claims["role"]),
 	})
@@ -294,13 +265,6 @@ func (h *HandlerV1) Verify(c *gin.Context) {
 			Message: err.Error(),
 		})
 		log.Println(err)
-		return
-	}
-	if err := os.Remove(filepath.Join(uploadPath)); err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
 		return
 	}
 
@@ -330,20 +294,12 @@ func (h *HandlerV1) Verify(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/login [POST]
 func (h *HandlerV1) Login(c *gin.Context) {
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	var body models.Login
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -436,20 +392,12 @@ func (h *HandlerV1) Login(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/forgot/{email} [POST]
 func (h *HandlerV1) Forgot(c *gin.Context) {
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	email := c.Param("email")
 
-	email, err = validation.EmailValidation(email)
+	email, err := validation.EmailValidation(email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -457,9 +405,12 @@ func (h *HandlerV1) Forgot(c *gin.Context) {
 		log.Println(err.Error())
 		return
 	}
+	filter := map[string]string{
+		"email" : email,
+	}
 
-	status, err := h.Service.User().UniqueEmail(ctx, &entity.IsUnique{
-		Email: email,
+	status, err := h.Service.User().CheckUnique(ctx, &entity.GetReq{
+		Filter: filter,
 	})
 
 	if err != nil {
@@ -477,7 +428,7 @@ func (h *HandlerV1) Forgot(c *gin.Context) {
 		return
 	}
 
-	radomNumber, err := regtool.SendCodeGmail(email, "ClothesStore\n", "./internal/pkg/regtool/forgotpassword.html", h.Config)
+	radomNumber, err := regtool.SendCodeGmail(email, "Univer\n", "./internal/pkg/regtool/forgotpassword.html", h.Config)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
 			Message: err.Error(),

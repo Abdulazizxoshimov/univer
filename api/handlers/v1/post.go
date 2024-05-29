@@ -5,85 +5,35 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
-	"time"
 	"univer/api/models"
 	"univer/internal/entity"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// @Security  		BearerAuth
-// @Summary   		Create Post
-// @Description 	Api for create a new Post
-// @Tags 			post
-// @Accept 			multipart/form-data
-// @Produce 		json
-// @Param 			theme query string true "Theme"
-// @Param 			science query string true "Science"
-// @Param 			id query string true "Category Id"
-// @Param 			file formData file true "File"
-// @Success 		201 {object} models.CreateResponse
-// @Failure 		400 {object} models.Error
-// @Failure 		401 {object} models.Error
-// @Failure 		403 {object} models.Error
-// @Failure 		500 {object} models.Error
-// @Router 			/v1/post [POST]
+// @Security      BearerAuth
+// @Summary       Create Post
+// @Description   Api for create a new Post
+// @Tags          post
+// @Accept        multipart/form-data
+// @Produce       json
+// @Param         theme query string true "Theme"
+// @Param         science query string true "Science"
+// @Param         id query string true "Category Id"
+// @Param         price query string false "Price"
+// @Param         file formData file true "File"
+// @Success       201 {object} models.CreateResponse
+// @Failure       400 {object} models.Error
+// @Failure       401 {object} models.Error
+// @Failure       403 {object} models.Error
+// @Failure       500 {object} models.Error
+// @Router        /v1/post [POST]
 func (h *HandlerV1) CreatePost(c *gin.Context) {
-	endpoint := h.Config.Minio.Endpoint
-	accessKeyID := h.Config.Minio.AccessKeyID
-	secretAccessKey := h.Config.Minio.SecretAcessKey
-	bucketName := h.Config.Minio.FileUploadBucketName
-	
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: false,
-	})
-	if err != nil {
-		panic(err)
-	}
-	err = minioClient.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{})
-	if err != nil {
-		if minio.ToErrorResponse(err).Code == "BucketAlreadyOwnedByYou" {
-
-		} else {
-			c.JSON(http.StatusInternalServerError, models.Error{
-				Message: err.Error(),
-			})
-			log.Println(err.Error())
-			return
-		}
-	}
-
-	policy := fmt.Sprintf(`{
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Principal": {
-                    "AWS": ["*"]
-                },
-                "Action": ["s3:GetObject"],
-                "Resource": ["arn:aws:s3:::%s/*"]
-            }
-        ]
-    }`, bucketName)
-
-	err = minioClient.SetBucketPolicy(context.Background(), bucketName, policy)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-
 	var (
 		file        models.File
 		body        models.PostCreate
@@ -91,20 +41,22 @@ func (h *HandlerV1) CreatePost(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	body.CategoryId = c.Query("id")
 	body.Science = c.Query("science")
 	body.Theme = c.Query("theme")
+	price := c.Query("price")
+	var err error
+	body.Price, err = strconv.ParseFloat(price, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Error{
+			Message: err.Error(),
+		})
+		log.Println(err.Error())
+		return
+	}
 
 	err = c.ShouldBind(&file)
 	if err != nil {
@@ -131,34 +83,30 @@ func (h *HandlerV1) CreatePost(c *gin.Context) {
 		".xls":  true,
 		".xlsx": true,
 		".xlsm": true,
+		".zip":  true,
 	}
+
 	if !allowedExtensions[ext] {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: "Only .pdf, .doc, .docx, .ppt, and .pptx format files are accepted"})
 		return
 	}
 
-	uploadDir := "./media"
-	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-		os.Mkdir(uploadDir, os.ModePerm)
-	}
-
 	id := uuid.New().String()
+	objectName := id + ext
 
-	newFilename := id + ext
-	uploadPath := filepath.Join(uploadDir, newFilename)
-
-	if err := c.SaveUploadedFile(file.File, uploadPath); err != nil {
+	fileHeader, err := file.File.Open()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
 			Message: err.Error(),
 		})
 		log.Println(err)
 		return
 	}
+	defer fileHeader.Close()
 
-	objectName := body.Theme + ext
 	contentType := c.ContentType()
-	_, err = minioClient.FPutObject(ctx, bucketName, objectName, uploadPath, minio.PutObjectOptions{
+	_, err = h.MinIO.PutObject(ctx, h.Config.Minio.FileUploadBucketName, objectName, fileHeader, file.File.Size, minio.PutObjectOptions{
 		ContentType: contentType,
 	})
 
@@ -169,15 +117,8 @@ func (h *HandlerV1) CreatePost(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	if err := os.Remove(uploadPath); err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
 
-	minioURL := fmt.Sprintf("http://%s/%s/%s", endpoint, bucketName, objectName)
+	minioURL := fmt.Sprintf("http://%s/%s/%s", h.Config.Minio.Endpoint, h.Config.Minio.FileUploadBucketName, objectName)
 
 	userId, statusCode := GetIdFromToken(c.Request, &h.Config)
 	if statusCode != 0 {
@@ -185,25 +126,56 @@ func (h *HandlerV1) CreatePost(c *gin.Context) {
 			Message: "oops something went wrong",
 		})
 	}
-	post, err := h.Service.Post().CreatePost(ctx, &entity.Post{
-		Id:         id,
-		UserId:     userId,
-		Theme:      body.Theme,
-		Path:       minioURL,
-		Science:    body.Science,
-		CategoryId: body.CategoryId,
-	})
-	if err != nil {
+	role, statusCode := GetRoleFromToken(c.Request, &h.Config)
+	if statusCode != 0 {
 		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
+			Message: "oops something went wrong",
 		})
-		log.Println(err.Error())
-		return
 	}
 
-	c.JSON(http.StatusCreated, models.CreateResponse{
-		Id: post.Id,
-	})
+	if body.Price > 0 && role == "prouser" {
+		post, err := h.Service.Post().CreatePost(ctx, &entity.Post{
+			Id:          id,
+			UserId:      userId,
+			Theme:       body.Theme,
+			Path:        minioURL,
+			Science:     body.Science,
+			CategoryId:  body.CategoryId,
+			PriceStatus: true,
+			Price:       body.Price,
+		})
+		if err != nil {
+			c.JSON(http.StatusBadRequest, models.Error{
+				Message: err.Error(),
+			})
+			log.Println(err.Error())
+			return
+		}
+
+		c.JSON(http.StatusCreated, models.CreateResponse{
+			Id: post.Id,
+		})
+	} else {
+		post, err := h.Service.Post().CreatePost(ctx, &entity.Post{
+			Id:         id,
+			UserId:     userId,
+			Theme:      body.Theme,
+			Path:       minioURL,
+			Science:    body.Science,
+			CategoryId: body.CategoryId,
+		})
+		if err != nil {
+			c.JSON(http.StatusBadRequest, models.Error{
+				Message: err.Error(),
+			})
+			log.Println(err.Error())
+			return
+		}
+
+		c.JSON(http.StatusCreated, models.CreateResponse{
+			Id: post.Id,
+		})
+	}
 }
 
 // @Security  		BearerAuth
@@ -226,18 +198,10 @@ func (h *HandlerV1) UpdatePost(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -245,27 +209,55 @@ func (h *HandlerV1) UpdatePost(c *gin.Context) {
 		log.Println(err.Error())
 		return
 	}
-
-	post, err := h.Service.Post().UpdatePost(ctx, &entity.PostUpdateReq{
-		Id:         body.Id,
-		Theme:      body.Theme,
-		Science:    body.Science,
-		CategoryId: body.CategoryId,
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
+	role, statusCode := GetRoleFromToken(c.Request, &h.Config)
+	if statusCode != 0 {
+		c.JSON(http.StatusBadRequest, models.Error{
+			Message: "oops something went wrong",
 		})
-		log.Println(err.Error())
-		return
 	}
 
-	c.JSON(http.StatusOK, models.PostUpdateReq{
-		Id:         post.Id,
-		Theme:      post.Theme,
-		Science:    post.Science,
-		CategoryId: post.CategoryId,
-	})
+	if role == "prouser" {
+		post, err := h.Service.Post().UpdatePost(ctx, &entity.PostUpdateReq{
+			Id:         body.Id,
+			Theme:      body.Theme,
+			Science:    body.Science,
+			CategoryId: body.CategoryId,
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.Error{
+				Message: err.Error(),
+			})
+			log.Println(err.Error())
+			return
+		}
+		c.JSON(http.StatusOK, models.PostUpdateReq{
+			Id:         post.Id,
+			Theme:      post.Theme,
+			Science:    post.Science,
+			CategoryId: post.CategoryId,
+		})
+	} else {
+		post, err := h.Service.Post().UpdatePost(ctx, &entity.PostUpdateReq{
+			Id:         body.Id,
+			Theme:      body.Theme,
+			Science:    body.Science,
+			CategoryId: body.CategoryId,
+			Price:      body.Price,
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.Error{
+				Message: err.Error(),
+			})
+			log.Println(err.Error())
+			return
+		}
+		c.JSON(http.StatusOK, models.PostUpdateReq{
+			Id:         post.Id,
+			Theme:      post.Theme,
+			Science:    post.Science,
+			CategoryId: post.CategoryId,
+		})
+	}
 }
 
 // @Security  		BearerAuth
@@ -287,20 +279,12 @@ func (h *HandlerV1) DeletePost(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	userID := c.Param("id")
 
-	err = h.Service.Post().DeletePost(ctx, &entity.DeleteReq{
+	err := h.Service.Post().DeletePost(ctx, &entity.DeleteReq{
 		Id: userID,
 	})
 	if err != nil {
@@ -333,21 +317,21 @@ func (h *HandlerV1) GetPost(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	userID := c.Param("id")
+	id := c.Param("id")
+
+	userId, statusCode := GetIdFromToken(c.Request, &h.Config)
+	if statusCode != 0 {
+		c.JSON(http.StatusBadRequest, models.Error{
+			Message: "oops something went wrong",
+		})
+	}
 
 	filter := map[string]string{
-		"id": userID,
+		"id":      id,
+		"user_id": userId,
 	}
 	post, err := h.Service.Post().GetPost(ctx, &entity.GetReq{
 		Filter: filter,
@@ -361,13 +345,15 @@ func (h *HandlerV1) GetPost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.Post{
-		Id:         userID,
-		UserId:     post.UserId,
-		Theme:      post.Theme,
-		Path:       post.Path,
-		Science:    post.Science,
-		Views:      post.Views,
-		CategoryId: post.CategoryId,
+		Id:          id,
+		UserId:      post.UserId,
+		Theme:       post.Theme,
+		Path:        post.Path,
+		Science:     post.Science,
+		Views:       post.Views,
+		CategoryId:  post.CategoryId,
+		PriceStatus: post.PriceStatus,
+		Price:       post.Price,
 	})
 }
 
@@ -390,15 +376,7 @@ func (h *HandlerV1) GetDelPost(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	userID := c.Param("id")
@@ -419,13 +397,15 @@ func (h *HandlerV1) GetDelPost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.Post{
-		Id:         userID,
-		UserId:     post.UserId,
-		Theme:      post.Theme,
-		Path:       post.Path,
-		Science:    post.Science,
-		Views:      post.Views,
-		CategoryId: post.CategoryId,
+		Id:          userID,
+		UserId:      post.UserId,
+		Theme:       post.Theme,
+		Path:        post.Path,
+		Science:     post.Science,
+		Views:       post.Views,
+		CategoryId:  post.CategoryId,
+		PriceStatus: post.PriceStatus,
+		Price:       post.Price,
 	})
 }
 
@@ -449,15 +429,7 @@ func (h *HandlerV1) ListPost(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	page := c.Query("page")
 	limit := c.Query("limit")
@@ -496,13 +468,15 @@ func (h *HandlerV1) ListPost(c *gin.Context) {
 	var posts []*models.Post
 	for _, post := range listPost.Post {
 		posts = append(posts, &models.Post{
-			Id:         post.Id,
-			UserId:     post.UserId,
-			Theme:      post.Theme,
-			Path:       post.Path,
-			Views:      post.Views,
-			CategoryId: post.CategoryId,
-			Science:    post.Science,
+			Id:          post.Id,
+			UserId:      post.UserId,
+			Theme:       post.Theme,
+			Path:        post.Path,
+			Views:       post.Views,
+			CategoryId:  post.CategoryId,
+			Science:     post.Science,
+			Price:       post.Price,
+			PriceStatus: post.PriceStatus,
 		})
 	}
 
@@ -534,15 +508,7 @@ func (h *HandlerV1) GetAllPostByUserId(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	body.UserId = c.Query("id")
 	page := c.Query("page")
@@ -587,13 +553,15 @@ func (h *HandlerV1) GetAllPostByUserId(c *gin.Context) {
 	var posts []*models.Post
 	for _, post := range listPost.Post {
 		posts = append(posts, &models.Post{
-			Id:         post.Id,
-			UserId:     post.UserId,
-			Theme:      post.Theme,
-			Path:       post.Path,
-			Views:      post.Views,
-			CategoryId: post.CategoryId,
-			Science:    post.Science,
+			Id:          post.Id,
+			UserId:      post.UserId,
+			Theme:       post.Theme,
+			Path:        post.Path,
+			Views:       post.Views,
+			CategoryId:  post.CategoryId,
+			Science:     post.Science,
+			Price:       post.Price,
+			PriceStatus: post.PriceStatus,
 		})
 	}
 

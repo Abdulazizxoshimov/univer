@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"log"
 	"time"
 	"univer/internal/entity"
 	"univer/internal/infrastructure/repository"
@@ -20,23 +21,23 @@ type Post interface {
 	DeletePost(ctx context.Context, req *entity.DeleteReq) error
 	GetPost(ctx context.Context, req *entity.GetReq) (*entity.Post, error)
 	ListPost(ctx context.Context, req *entity.ListReq) (*entity.PostListRes, error)
-	Search(ctx context.Context, req *entity.ListReq)(*entity.PostListRes, error)
+	Search(ctx context.Context, req *entity.ListReq) (*entity.PostListRes, error)
 }
 
-type postService struct{
+type postService struct {
 	BaseUseCase
 	ctxTimeout time.Duration
-	repo repository.Post
+	repo       repository.Post
 }
 
-func NewPostService(ctxTimout time.Duration, repo repository.Post) Post{
-	return  postService{
+func NewPostService(ctxTimout time.Duration, repo repository.Post) Post {
+	return postService{
 		ctxTimeout: ctxTimout,
-		repo: repo,
+		repo:       repo,
 	}
 }
 func (p postService) CreatePost(ctx context.Context, Post *entity.Post) (*entity.Post, error) {
-	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService + "CreatePost")
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"CreatePost")
 	defer span.End()
 
 	p.beforeRequest(nil, &Post.CreatedAt, &Post.UpdatedAt, nil)
@@ -44,7 +45,7 @@ func (p postService) CreatePost(ctx context.Context, Post *entity.Post) (*entity
 	return p.repo.CreatePost(ctx, Post)
 }
 func (p postService) UpdatePost(ctx context.Context, Post *entity.PostUpdateReq) (*entity.PostUpdateReq, error) {
-	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService + "UpdatePost")
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"UpdatePost")
 	defer span.End()
 
 	p.beforeRequest(nil, nil, &Post.UpdatedAt, nil)
@@ -52,28 +53,45 @@ func (p postService) UpdatePost(ctx context.Context, Post *entity.PostUpdateReq)
 	return p.repo.UpdatePost(ctx, Post)
 }
 func (p postService) DeletePost(ctx context.Context, req *entity.DeleteReq) error {
-	ctx, span := otlp.Start(ctx,  serviceNamePostsService, spanNamePostsService + "DeletePost")
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"DeletePost")
 	defer span.End()
 
 	p.beforeRequest(nil, nil, nil, &req.DeletedAt)
 
-
 	return p.repo.DeletePost(ctx, req)
 }
 func (p postService) GetPost(ctx context.Context, req *entity.GetReq) (*entity.Post, error) {
-	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService + "GetPost")
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"GetPost")
 	defer span.End()
+
+	check, err := p.repo.CheckUnique(ctx, req.Filter["user_id"], req.Filter["id"])
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	if !check {
+		_, err := p.repo.CreateViews(ctx, req.Filter["user_id"], req.Filter["id"])
+		if err != nil {
+			log.Println(err.Error())
+			return nil, err
+		}
+		_, err = p.repo.UpdateViews(ctx, req.Filter["id"])
+		if err != nil {
+			log.Println(err.Error())
+			return nil, err
+		}
+	}
 
 	return p.repo.GetPost(ctx, req.Filter)
 }
 func (p postService) ListPost(ctx context.Context, req *entity.ListReq) (*entity.PostListRes, error) {
-	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService + "ListPost")
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"ListPost")
 	defer span.End()
 
 	return p.repo.ListPost(ctx, req.Limit, req.Offset, req.Filter)
 }
-func (p postService)Search(ctx context.Context, req *entity.ListReq)(*entity.PostListRes, error){
-	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService + "Search")
+func (p postService) Search(ctx context.Context, req *entity.ListReq) (*entity.PostListRes, error) {
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"Search")
 	defer span.End()
 
 	return p.repo.Search(ctx, req)

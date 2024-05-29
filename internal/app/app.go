@@ -10,12 +10,15 @@ import (
 	redisrepo "univer/internal/infrastructure/repository/redisdb"
 	"univer/internal/pkg/config"
 	"univer/internal/pkg/logger"
+	minIOBucket "univer/internal/pkg/minio"
 	"univer/internal/pkg/otlp"
 	storage "univer/internal/pkg/storage"
 	"univer/internal/usecase"
 
 	defaultrolemanager "github.com/casbin/casbin/v2/rbac/default-role-manager"
 	"github.com/casbin/casbin/v2/util"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"go.uber.org/zap"
 
 	"github.com/casbin/casbin/v2"
@@ -33,6 +36,7 @@ type App struct {
 	Post         usecase.Post
 	Category     usecase.Category
 	Comment      usecase.Comment
+	minIO        *minio.Client
 }
 
 func NewApp(cfg config.Config) (*App, error) {
@@ -54,6 +58,15 @@ func NewApp(cfg config.Config) (*App, error) {
 
 	//init casbin enforcer
 	enforcer, err := casbin.NewEnforcer("auth.conf", "auth.csv")
+	if err != nil {
+		return nil, err
+	}
+
+	//minIO
+	minioClient, err := minio.New(cfg.Minio.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(cfg.Minio.AccessKeyID, cfg.Minio.SecretAcessKey, ""),
+		Secure: false,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -90,14 +103,11 @@ func NewApp(cfg config.Config) (*App, error) {
 		Post:         postRepo,
 		Category:     categoryRepo,
 		Comment:      &commentRepo,
+		minIO:        minioClient,
 	}, nil
 }
 
 func (a *App) Run() error {
-	contextTimeout, err := time.ParseDuration(a.Config.Context.Timeout)
-	if err != nil {
-		return fmt.Errorf("error while parsing context timeout: %v", err)
-	}
 
 	service := clientService.New(a.User, a.Post, a.Comment, a.Category)
 
@@ -108,11 +118,21 @@ func (a *App) Run() error {
 	handler := api.NewRoute(api.RouteOption{
 		Config:         a.Config,
 		Logger:         a.Logger,
-		ContextTimeout: contextTimeout,
+		ContextTimeout: a.Config.Context.Timeout,
 		Cache:          cache,
 		Enforcer:       a.Enforcer,
 		Service:        service,
+		MinIO:          a.minIO,
 	})
+
+	err := minIOBucket.MinIOBucket(a.Config.Minio.FileUploadBucketName, a.minIO)
+	if err != nil {
+		return err
+	}
+	err = minIOBucket.MinIOBucket(a.Config.Minio.ImageUrlUploadBucketName, a.minIO)
+	if err != nil {
+		return err
+	}
 
 	err = a.Enforcer.LoadPolicy()
 	if err != nil {

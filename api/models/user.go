@@ -4,7 +4,6 @@ type UserRegister struct {
 	UserName    string
 	Email       string
 	Password    string
-	PhoneNumber string
 }
 
 type User struct {
@@ -24,7 +23,6 @@ type UpdateReq struct {
 	UserName    string
 	Email       string
 	PhoneNumber string
-	Password    string
 	Bio         string
 }
 

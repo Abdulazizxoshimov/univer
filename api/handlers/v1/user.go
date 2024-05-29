@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
-	"time"
+	"strings"
 	"univer/api/models"
 	"univer/internal/entity"
 	regtool "univer/internal/pkg/regtool"
@@ -17,9 +16,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/k0kubun/pp"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -43,18 +40,10 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -71,9 +60,12 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 		log.Println(err.Error())
 		return
 	}
+	filter := map[string]string{
+		"email": body.Email,
+	}
 
-	status, err := h.Service.User().UniqueEmail(ctx, &entity.IsUnique{
-		Email: body.Email,
+	status, err := h.Service.User().CheckUnique(ctx, &entity.GetReq{
+		Filter: filter,
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
@@ -88,6 +80,15 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 		return
 	}
 
+	statusPassword := validation.PasswordValidation(body.Password)
+	if !statusPassword {
+		c.JSON(http.StatusBadRequest, models.Error{
+			Message: models.WeakPasswordMessage,
+		})
+		log.Println(models.WeakPasswordMessage)
+		return
+	}
+
 	hashpassword, err := regtool.HashPassword(body.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
@@ -97,13 +98,18 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 		return
 	}
 
+	if !validation.ValidateUsername(body.UserName) {
+		c.JSON(http.StatusBadRequest, models.Error{
+			Message: "Invalid Username",
+		})
+	}
+
 	userServiceCreateResponse, err := h.Service.User().CreateUser(ctx, &entity.User{
-		Id:          uuid.New().String(),
-		UserName:    body.UserName,
-		Email:       body.Email,
-		Password:    hashpassword,
-		PhoneNumber: body.PhoneNumber,
-		Role:        "user",
+		Id:       uuid.New().String(),
+		UserName: body.UserName,
+		Email:    body.Email,
+		Password: hashpassword,
+		Role:     "user",
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
@@ -138,18 +144,10 @@ func (h *HandlerV1) UpdateUser(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -176,10 +174,12 @@ func (h *HandlerV1) UpdateUser(c *gin.Context) {
 		})
 		log.Println(err.Error())
 	}
-
+	mp := map[string]string{
+		"email": body.Email,
+	}
 	if user.Email != body.Email {
-		status, err := h.Service.User().UniqueEmail(ctx, &entity.IsUnique{
-			Email: body.Email,
+		status, err := h.Service.User().CheckUnique(ctx, &entity.GetReq{
+			Filter: mp,
 		})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, models.Error{
@@ -211,7 +211,6 @@ func (h *HandlerV1) UpdateUser(c *gin.Context) {
 		Id:          body.Id,
 		UserName:    body.UserName,
 		Email:       body.Email,
-		Password:    body.Password,
 		PhoneNumber: body.PhoneNumber,
 		Bio:         body.Bio,
 		Role:        "user",
@@ -251,15 +250,7 @@ func (h *HandlerV1) DeleteUser(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	userID := c.Param("id")
@@ -316,30 +307,21 @@ func (h *HandlerV1) GetUser(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	userID := c.Param("id")
 
 	filter := make(map[string]string)
+
 	if govalidator.IsEmail(userID) {
 		filter["email"] = userID
-	}else if  validation.ValidateUUID(userID){
-		filter = map[string]string{
-			"id": userID,
-		}
-	}else {
+	} else if validation.ValidateUUID(userID) {
+		filter["id"] = userID
+	} else {
 		filter["username"] = userID
 	}
-	
+
 	response, err := h.Service.User().GetUser(ctx, &entity.GetReq{
 		Filter: filter,
 	})
@@ -352,14 +334,14 @@ func (h *HandlerV1) GetUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.UserResponse{
-		Id:           userID,
-		UserName:     response.UserName,
-		Email:        response.Email,
-		PhoneNumber:  response.PhoneNumber,
-		Bio:          response.Bio,
-		ImageUrl:     response.ImageUrl,
-		Refresh: response.RefreshToken,
-		Role:         response.Role,
+		Id:          userID,
+		UserName:    response.UserName,
+		Email:       response.Email,
+		PhoneNumber: response.PhoneNumber,
+		Bio:         response.Bio,
+		ImageUrl:    response.ImageUrl,
+		Refresh:     response.RefreshToken,
+		Role:        response.Role,
 	})
 }
 
@@ -382,15 +364,7 @@ func (h *HandlerV1) GetDelUser(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	userID := c.Param("id")
@@ -409,14 +383,14 @@ func (h *HandlerV1) GetDelUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.UserResponse{
-		Id:           userID,
-		UserName:     response.UserName,
-		Email:        response.Email,
-		PhoneNumber:  response.PhoneNumber,
-		ImageUrl:     response.Email,
-		Bio:          response.Bio,
-		Role:         response.Role,
-		Refresh: response.RefreshToken,
+		Id:          userID,
+		UserName:    response.UserName,
+		Email:       response.Email,
+		PhoneNumber: response.PhoneNumber,
+		ImageUrl:    response.Email,
+		Bio:         response.Bio,
+		Role:        response.Role,
+		Refresh:     response.RefreshToken,
 	})
 }
 
@@ -426,8 +400,8 @@ func (h *HandlerV1) GetDelUser(c *gin.Context) {
 // @Tags 			users
 // @Accept 			json
 // @Produce 		json
-// @Param 			page query uint64 true "Page"
-// @Param 			limit query uint64 true "Limit"
+// @Param 			page query string true "Page"
+// @Param 			limit query string true "Limit"
 // @Success 		200 {object} models.ListUser
 // @Failure 		404 {object} models.Error
 // @Failure 		401 {object} models.Error
@@ -440,15 +414,7 @@ func (h *HandlerV1) ListUsers(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	page := c.Query("page")
 	limit := c.Query("limit")
@@ -489,14 +455,14 @@ func (h *HandlerV1) ListUsers(c *gin.Context) {
 	var users []models.UserResponse
 	for _, user := range listUsers.User {
 		users = append(users, models.UserResponse{
-			Id:           user.Id,
-			UserName:     user.UserName,
-			Email:        user.Email,
-			PhoneNumber:  user.PhoneNumber,
-			Bio:          user.Bio,
-			ImageUrl:     user.ImageUrl,
-			Refresh: user.RefreshToken,
-			Role:         user.Role,
+			Id:          user.Id,
+			UserName:    user.UserName,
+			Email:       user.Email,
+			PhoneNumber: user.PhoneNumber,
+			Bio:         user.Bio,
+			ImageUrl:    user.ImageUrl,
+			Refresh:     user.RefreshToken,
+			Role:        user.Role,
 		})
 	}
 
@@ -525,30 +491,9 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	endpoint := h.Config.Minio.Endpoint
-	accessKeyID := h.Config.Minio.AccessKeyID
-	secretAccessKey := h.Config.Minio.SecretAcessKey
-	bucketName := h.Config.Minio.ImageUrlUploadBucketName
-
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: false,
-	})
-	if err != nil {
-		panic(err)
-	}
-	
 	userId, statusCode := GetIdFromToken(c.Request, &h.Config)
 	if statusCode != 0 {
 		c.JSON(http.StatusBadRequest, models.Error{
@@ -557,7 +502,7 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 	}
 
 	file := &models.File{}
-	err = c.ShouldBind(&file)
+	err := c.ShouldBind(&file)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -574,6 +519,7 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 	}
 
 	ext := filepath.Ext(file.File.Filename)
+	ext = strings.ToLower(ext)
 	allowedExtensions := map[string]bool{
 		".jpg":  true,
 		".jpeg": true,
@@ -582,7 +528,6 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 		".bmp":  true,
 		".tiff": true,
 		".svg":  true,
-		".JPG": true,
 	}
 	if !allowedExtensions[ext] {
 		c.JSON(http.StatusBadRequest, models.Error{
@@ -590,26 +535,19 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	uploadDir := "./media"
-	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-		os.Mkdir(uploadDir, os.ModePerm)
-	}
-
-
-	newFilename := userId + ext
-	uploadPath := filepath.Join(uploadDir, newFilename)
-
-	if err := c.SaveUploadedFile(file.File, uploadPath); err != nil {
+	fileHeader, err := file.File.Open()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
 			Message: err.Error(),
 		})
 		log.Println(err)
 		return
 	}
+	defer fileHeader.Close()
 
-	objectName := newFilename
-	contentType := "image/jpeg"
-	_, err = minioClient.FPutObject(context.Background(), bucketName, objectName, uploadPath, minio.PutObjectOptions{
+	objectName := userId + ext
+	contentType := c.ContentType()
+	_, err = h.MinIO.PutObject(ctx, h.Config.Minio.ImageUrlUploadBucketName, objectName, fileHeader, file.File.Size, minio.PutObjectOptions{
 		ContentType: contentType,
 	})
 
@@ -621,9 +559,8 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	minioURL := fmt.Sprintf("http://%s/%s/%s", endpoint, bucketName, objectName)
-	
-	pp.Println(minioURL)
+	minioURL := fmt.Sprintf("http://%s/%s/%s", h.Config.Minio.Endpoint, h.Config.Minio.ImageUrlUploadBucketName, objectName)
+
 	_, err = h.Service.User().UpdateProfile(ctx, &entity.UpdateProfile{
 		Id:       userId,
 		ImageUrl: minioURL,
@@ -661,18 +598,10 @@ func (h *HandlerV1) UpdatePassword(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -685,6 +614,43 @@ func (h *HandlerV1) UpdatePassword(c *gin.Context) {
 		UserID:      body.Id,
 		NewPassword: body.Password,
 	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.Error{
+			Message: err.Error(),
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, models.Response{
+		Response: "Your profile has changed succesfully",
+	})
+}
+
+// @Security        BearerAuth
+// @Summary         Update To Premium
+// @Description     Api for updating user's role
+// @Tags            users
+// @Produce         json
+// @Param           id path string true "Id"
+// @Success 		200 {object} models.Response
+// @Failure 		404 {object} models.Error
+// @Failure 		401 {object} models.Error
+// @Failure 		403 {object} models.Error
+// @Failure 		500 {object} models.Error
+// @Router 			/v1/user/premium/{id} [PUT]
+func (h *HandlerV1) UpdateToPremium(c *gin.Context) {
+	var (
+		jspbMarshal protojson.MarshalOptions
+	)
+	jspbMarshal.UseProtoNames = true
+
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
+	defer cancel()
+
+	id := c.Param("id")
+
+	_, err := h.Service.User().UpdateToPremium(ctx, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{
 			Message: err.Error(),

@@ -16,6 +16,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go/v7"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
@@ -29,6 +30,7 @@ type RouteOption struct {
 	Enforcer       *casbin.Enforcer
 	RefreshToken   token.JWTHandler
 	Service        clientService.ServiceClient
+	MinIO          *minio.Client
 }
 
 // NewRoute
@@ -51,6 +53,7 @@ func NewRoute(option RouteOption) *gin.Engine {
 		RefreshToken:   option.RefreshToken,
 		Enforcer:       option.Enforcer,
 		Service:        option.Service,
+		MinIO:          option.MinIO,
 	})
 
 	corsConfig := cors.DefaultConfig()
@@ -62,7 +65,7 @@ func NewRoute(option RouteOption) *gin.Engine {
 	router.Use(cors.New(corsConfig))
 
 	router.Use(middleware.Tracing)
-    router.Use(middleware.CheckCasbinPermission(option.Enforcer, option.Config))
+	router.Use(middleware.CheckCasbinPermission(option.Enforcer, option.Config))
 
 	router.Static("/media", "./media")
 
@@ -86,6 +89,7 @@ func NewRoute(option RouteOption) *gin.Engine {
 	apiV1.GET("/users", HandlerV1.ListUsers)
 	apiV1.PUT("/user/profile", HandlerV1.UpdateProfile)
 	apiV1.PUT("/user/password", HandlerV1.UpdatePassword)
+	apiV1.PUT("/user/premium/:id", HandlerV1.UpdateToPremium)
 
 	//post
 	apiV1.POST("/post", HandlerV1.CreatePost)
@@ -103,13 +107,12 @@ func NewRoute(option RouteOption) *gin.Engine {
 	apiV1.GET("/category/:id", HandlerV1.GetCategory)
 	apiV1.GET("/categories", HandlerV1.ListCategory)
 
-	//search 
+	//search
 	apiV1.GET("/search", HandlerV1.Search)
 
 	//google
 	apiV1.GET("/google/callback", HandlerV1.GoogleCallback)
 	apiV1.GET("google/login", HandlerV1.GoogleLogin)
-
 
 	//comment
 	apiV1.POST("/comment", HandlerV1.CreateComment)
@@ -119,11 +122,8 @@ func NewRoute(option RouteOption) *gin.Engine {
 	apiV1.GET("/comments", HandlerV1.ListComment)
 	apiV1.GET("/user/comments", HandlerV1.GetAllCommentByUserId)
 	apiV1.GET("/post/comments", HandlerV1.GetAllCommentByPostId)
-    apiV1.POST("/comment/dislike", HandlerV1.CreateDisLike)
+	apiV1.POST("/comment/dislike", HandlerV1.CreateDisLike)
 	apiV1.POST("/comment/like", HandlerV1.CreateLike)
-
-	
-
 
 	url := ginSwagger.URL("swagger/doc.json")
 	apiV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))

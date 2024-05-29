@@ -1111,6 +1111,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Price",
+                        "name": "price",
+                        "in": "query"
+                    },
+                    {
                         "type": "file",
                         "description": "File",
                         "name": "file",
@@ -1546,6 +1552,29 @@ const docTemplate = `{
                         "name": "theme",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Science",
+                        "name": "science",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Price Satatus",
+                        "name": "priceStatus",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "slayt",
+                            "mustaqil ish",
+                            "kurs ishi"
+                        ],
+                        "type": "string",
+                        "description": "Category",
+                        "name": "category",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1975,6 +2004,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/user/premium/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Api for updating user's role",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update To Premium",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/profile": {
             "put": {
                 "security": [
@@ -2176,14 +2263,14 @@ const docTemplate = `{
                 "summary": "List User",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Page",
                         "name": "page",
                         "in": "query",
                         "required": true
                     },
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Limit",
                         "name": "limit",
                         "in": "query",
@@ -2520,6 +2607,12 @@ const docTemplate = `{
                 "path": {
                     "type": "string"
                 },
+                "price": {
+                    "type": "number"
+                },
+                "priceStatus": {
+                    "type": "boolean"
+                },
                 "science": {
                     "type": "string"
                 },
@@ -2536,12 +2629,21 @@ const docTemplate = `{
         },
         "models.PostUpdateReq": {
             "type": "object",
+            "required": [
+                "category_id",
+                "id",
+                "science",
+                "theme"
+            ],
             "properties": {
-                "categoryId": {
+                "category_id": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
+                },
+                "price": {
+                    "type": "number"
                 },
                 "science": {
                     "type": "string"
@@ -2663,9 +2765,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                },
-                "phoneNumber": {
                     "type": "string"
                 },
                 "userName": {

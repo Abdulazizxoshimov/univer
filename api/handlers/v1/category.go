@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 	"univer/api/models"
 	"univer/internal/entity"
 
@@ -33,18 +32,10 @@ func (h *HandlerV1) CreateCategory(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -90,18 +81,10 @@ func (h *HandlerV1) UpdateCategory(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -147,20 +130,12 @@ func (h *HandlerV1) DeleteCategory(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	categoryID := c.Param("id")
 
-	err = h.Service.Category().DeleteCategory(ctx, &entity.DeleteReq{
+	err := h.Service.Category().DeleteCategory(ctx, &entity.DeleteReq{
 		Id: categoryID,
 	})
 	if err != nil {
@@ -193,15 +168,7 @@ func (h *HandlerV1) GetCategory(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	categoryID := c.Param("id")
@@ -247,15 +214,7 @@ func (h *HandlerV1) ListCategory(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	page := c.Query("page")
@@ -279,7 +238,7 @@ func (h *HandlerV1) ListCategory(c *gin.Context) {
 	offset := (pageInt - 1) * limitInt
 
 	listCategories, err := h.Service.Category().ListCategory(ctx, &entity.ListReq{
-		Offset:  offset,
+		Offset: offset,
 		Limit:  limitInt,
 	})
 	if err != nil {

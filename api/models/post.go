@@ -3,19 +3,22 @@ package models
 import "mime/multipart"
 
 type Post struct {
-	Id         string
-	UserId     string
-	Theme      string
-	Path       string
-	Views      int
-	Science    string
-	CategoryId string
+	Id          string
+	UserId      string
+	Theme       string
+	Path        string
+	Views       int
+	Science     string
+	CategoryId  string
+	Price       float64
+	PriceStatus bool
 }
 
 type PostCreate struct {
-	Theme      string   `json:"theme"`
-	Science    string   `json:"science"`
-	CategoryId string   `json:"category_id"`
+	Theme      string  `json:"theme"`
+	Science    string  `json:"science"`
+	CategoryId string  `json:"category_id"`
+	Price      float64 `json:"price"`
 }
 
 type File struct {
@@ -23,11 +26,13 @@ type File struct {
 }
 
 type PostUpdateReq struct {
-	Id         string
-	Theme      string
-	Science    string
-	CategoryId string
+	Id         string    `json:"id" binding:"required"`
+	Theme      string    `json:"theme" binding:"required"`
+	Science    string    `json:"science" binding:"required"`
+	CategoryId string    `json:"category_id" binding:"required"`
+	Price      float64   `json:"price,omitempty"`
 }
+
 
 type ListPost struct {
 	Post       []*Post
@@ -35,7 +40,7 @@ type ListPost struct {
 }
 
 type GetAll struct {
-	Page  int
-	Limit int
-	UserId    string
+	Page   int
+	Limit  int
+	UserId string
 }

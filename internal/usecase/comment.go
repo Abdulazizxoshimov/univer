@@ -8,7 +8,6 @@ import (
 	"univer/internal/infrastructure/repository"
 	"univer/internal/pkg/otlp"
 
-	"github.com/k0kubun/pp"
 )
 
 const (
@@ -109,7 +108,6 @@ func (p *commentService) CreateLike(ctx context.Context, req *entity.Like) (bool
 			}
 			return true, err
 		} else {
-			pp.Println(req.Status)
 			_, err := p.repo.UpdateLike(ctx, req)
 			if err != nil {
 				log.Println(err)

@@ -21,11 +21,12 @@ type User interface {
 	DeleteUser(ctx context.Context, req *entity.DeleteReq) error
 	GetUser(ctx context.Context, filter *entity.GetReq) (*entity.User, error)
 	ListUser(ctx context.Context, req *entity.ListReq) (*entity.ListUserRes, error)
-	UniqueEmail(ctx context.Context, req *entity.IsUnique) (*entity.Response, error)
+	CheckUnique(ctx context.Context, filter *entity.GetReq) (*entity.Response, error)
 	UpdateRefresh(ctx context.Context, request *entity.UpdateRefresh) (*entity.Response, error)
 	UpdatePassword(ctx context.Context, request *entity.UpdatePassword) (*entity.Response, error)
 	UpdateProfile(ctx context.Context, request *entity.UpdateProfile) (*entity.Response, error)
 	DeleteProfile(ctx context.Context,  id string)error
+	UpdateToPremium(ctx context.Context, id string)(*entity.Response, error)
 }
 
 type userService struct {
@@ -81,11 +82,11 @@ func (u userService) ListUser(ctx context.Context, req *entity.ListReq) (*entity
 	return u.repo.List(ctx, req.Limit, req.Offset, req.Filter)
 }
 
-func (u userService) UniqueEmail(ctx context.Context, req *entity.IsUnique) (*entity.Response, error) {
+func (u userService) CheckUnique(ctx context.Context, req *entity.GetReq) (*entity.Response, error) {
 	ctx, span := otlp.Start(ctx, serviceNameUserService, spanNameUserService +"UniqueEmail")
 	defer span.End()
 
-	status, err := u.repo.UniqueEmail(ctx, req.Email)
+	status, err := u.repo.CheckUnique(ctx, req)
 	if err != nil{
 		log.Println(err.Error())
 		return &entity.Response{Status: false}, err
@@ -119,4 +120,10 @@ func (u userService)DeleteProfile(ctx context.Context, id string)error {
 	defer span.End()
 
 	return u.repo.DeleteProfile(ctx, id)
+}
+func (u userService)UpdateToPremium(ctx context.Context, id string)(*entity.Response, error){
+	ctx, span := otlp.Start(ctx, serviceNameUserService, spanNameUserService + "UpdateToPremium")
+	defer span.End()
+
+	return u.repo.UpdateToPremium(ctx, id)
 }

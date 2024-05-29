@@ -441,3 +441,258 @@
 2024-05-23T03:31:46.106+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
 2024-05-23T03:44:57.745+0500	INFO	app/main.go:41	api gateway service stops
 2024-05-23T03:44:59.608+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-24T20:42:20.021+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-24T21:27:25.140+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-24T21:27:26.874+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-24T21:30:02.706+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-24T21:30:04.389+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-24T21:30:17.734+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-24T21:30:21.432+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-24T21:30:40.700+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-24T21:30:43.128+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-24T21:47:54.693+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-24T21:54:28.802+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T01:49:42.068+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:06:20.584+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:07:36.629+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:07:38.253+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:10:42.387+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:12:18.989+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:21:19.127+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:21:56.993+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:38:19.355+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:38:21.215+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:41:48.192+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:41:50.010+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:42:20.657+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:42:22.418+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:45:06.363+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:45:08.182+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:51:29.893+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:51:31.742+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T02:53:56.196+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T02:54:01.646+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T03:01:42.487+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T03:01:44.139+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T03:50:06.484+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T03:50:06.498+0500	ERROR	app/main.go:32	app run	{"error": "listen tcp 127.0.0.1:7777: bind: address already in use"}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T03:51:07.024+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T03:51:14.935+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T03:51:14.951+0500	ERROR	app/main.go:32	app run	{"error": "listen tcp 127.0.0.1:7777: bind: address already in use"}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T03:51:16.806+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T03:53:39.757+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T03:56:46.499+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T03:56:48.490+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T03:57:53.127+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T03:57:54.887+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:07:52.024+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:07:54.036+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:07:54.224+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:13:58.317+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:14:00.119+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:14:00.126+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:20:22.544+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:20:24.524+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:20:24.615+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:21:14.744+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:21:16.501+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:21:16.504+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:22:34.584+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:22:36.316+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:22:36.318+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:22:55.380+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:22:57.041+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:22:57.043+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:23:18.904+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:23:20.552+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:23:20.554+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:24:07.407+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:24:08.908+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:24:08.910+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:24:51.434+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:24:52.916+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:24:52.918+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:28:25.944+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:28:27.570+0500	INFO	app/main.go:32	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:28:27.572+0500	ERROR	app/main.go:34	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:34
+2024-05-25T04:29:01.344+0500	INFO	app/main.go:43	api gateway service stops
+2024-05-25T04:29:03.042+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:29:03.044+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:29:24.971+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:29:26.636+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:29:26.638+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:29:59.274+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:30:00.905+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:30:00.906+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:31:51.965+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:31:53.557+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:31:53.558+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T04:38:56.565+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T04:38:58.480+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T04:52:58.035+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T23:12:24.452+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T23:12:28.009+0500	ERROR	app/main.go:32	app run	{"error": "Put \"http://127.0.0.1:9000/univer/\": dial tcp 127.0.0.1:9000: connect: connection refused"}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-25T23:15:15.188+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T23:15:16.869+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T23:16:47.837+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T23:17:03.185+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T23:17:58.430+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T23:18:01.690+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T23:18:23.988+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T23:18:25.611+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T23:21:06.609+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T23:21:08.859+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-25T23:21:46.922+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-25T23:21:48.744+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T01:43:28.830+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T01:44:00.080+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:04:44.294+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:28:03.976+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:28:04.130+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-26T02:29:34.328+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:29:36.090+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:30:38.262+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:30:39.767+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:31:48.863+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:31:50.545+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:32:24.518+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:32:26.059+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:37:17.741+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:37:19.317+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:44:28.668+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:45:23.277+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:45:23.426+0500	ERROR	app/main.go:32	app run	{"error": "The Access Key Id you provided does not exist in our records."}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-26T02:46:47.300+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:46:48.859+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:53:09.180+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:53:10.986+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T02:53:12.314+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T02:54:10.522+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:38:43.860+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:39:17.719+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:41:00.251+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:46:14.121+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:47:09.573+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:52:34.276+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T18:52:40.051+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:53:21.083+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T18:53:22.753+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:54:23.439+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T18:54:36.684+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:55:01.445+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T18:55:08.612+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:57:52.291+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T18:57:53.974+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T18:58:33.887+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T18:58:35.611+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T19:01:37.735+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T19:01:39.447+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T19:03:43.551+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T19:03:45.113+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T19:04:57.895+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T19:05:05.257+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T19:05:36.591+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T19:05:38.115+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T19:06:01.075+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T19:06:02.675+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T19:16:51.329+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T19:16:52.892+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T19:19:17.086+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T19:19:18.858+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T19:20:59.301+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T19:21:08.466+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T20:00:07.535+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T20:00:20.448+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T20:19:19.203+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T20:19:26.068+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T20:42:52.078+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T20:42:53.954+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T20:45:36.154+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T20:45:37.970+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T20:48:46.127+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T20:48:47.758+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T20:56:46.878+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T20:56:48.615+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T20:57:15.127+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T20:57:17.063+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T21:07:33.435+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T21:07:35.091+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T21:09:56.302+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T21:12:16.314+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T21:13:23.200+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T21:13:24.706+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T21:13:53.498+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T21:13:55.042+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T21:14:39.795+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T21:14:41.353+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T21:15:13.915+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T21:15:15.431+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T21:17:04.051+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T21:17:21.957+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T21:23:15.327+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T23:06:01.112+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T23:06:43.508+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T23:07:02.518+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T23:09:37.019+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T23:09:38.701+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T23:09:50.770+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T23:09:55.863+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T23:11:18.845+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T23:11:20.490+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T23:12:10.361+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T23:12:12.023+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T23:12:45.413+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-26T23:12:47.063+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-26T23:30:01.616+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-29T03:40:45.686+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-29T03:40:50.271+0500	ERROR	app/main.go:32	app run	{"error": "Put \"http://127.0.0.1:9000/univer/\": dial tcp 127.0.0.1:9000: connect: connection refused"}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-29T03:41:45.577+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-29T03:43:02.601+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-29T19:06:55.471+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-29T19:07:01.181+0500	ERROR	app/main.go:32	app run	{"error": "Put \"http://127.0.0.1:9000/univer/\": dial tcp 127.0.0.1:9000: connect: connection refused"}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-05-29T19:13:38.126+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-29T19:13:40.030+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-29T19:23:15.958+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-29T19:28:04.254+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}

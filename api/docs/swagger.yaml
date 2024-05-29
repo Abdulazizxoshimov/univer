@@ -123,6 +123,10 @@ definitions:
         type: string
       path:
         type: string
+      price:
+        type: number
+      priceStatus:
+        type: boolean
       science:
         type: string
       theme:
@@ -134,14 +138,21 @@ definitions:
     type: object
   models.PostUpdateReq:
     properties:
-      categoryId:
+      category_id:
         type: string
       id:
         type: string
+      price:
+        type: number
       science:
         type: string
       theme:
         type: string
+    required:
+    - category_id
+    - id
+    - science
+    - theme
     type: object
   models.ResetPassword:
     properties:
@@ -216,8 +227,6 @@ definitions:
       email:
         type: string
       password:
-        type: string
-      phoneNumber:
         type: string
       userName:
         type: string
@@ -908,6 +917,10 @@ paths:
         name: id
         required: true
         type: string
+      - description: Price
+        in: query
+        name: price
+        type: string
       - description: File
         in: formData
         name: file
@@ -1230,6 +1243,22 @@ paths:
         in: query
         name: theme
         required: true
+        type: string
+      - description: Science
+        in: query
+        name: science
+        type: string
+      - description: Price Satatus
+        in: query
+        name: priceStatus
+        type: boolean
+      - description: Category
+        enum:
+        - slayt
+        - mustaqil ish
+        - kurs ishi
+        in: query
+        name: category
         type: string
       produces:
       - application/json
@@ -1590,6 +1619,43 @@ paths:
       summary: List Post
       tags:
       - post
+  /v1/user/premium/{id}:
+    put:
+      description: Api for updating user's role
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      security:
+      - BearerAuth: []
+      summary: Update To Premium
+      tags:
+      - users
   /v1/user/profile:
     put:
       consumes:
@@ -1639,12 +1705,12 @@ paths:
         in: query
         name: page
         required: true
-        type: integer
+        type: string
       - description: Limit
         in: query
         name: limit
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:

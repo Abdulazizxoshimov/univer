@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 	"univer/api/models"
 	"univer/internal/entity"
 
@@ -32,18 +31,10 @@ func (h *HandlerV1) CreateComment(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(500, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(500, models.Error{
 			Message: err.Error(),
@@ -94,18 +85,10 @@ func (h *HandlerV1) UpdateComment(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: err.Error(),
@@ -151,20 +134,12 @@ func (h *HandlerV1) DeleteComment(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	userID := c.Param("id")
 
-	err = h.Service.Comment().DeleteComment(ctx, &entity.DeleteReq{
+	err := h.Service.Comment().DeleteComment(ctx, &entity.DeleteReq{
 		Id: userID,
 	})
 	if err != nil {
@@ -197,15 +172,7 @@ func (h *HandlerV1) GetComment(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	userID := c.Param("id")
@@ -254,15 +221,7 @@ func (h *HandlerV1) ListComment(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	page := c.Query("page")
 	limit := c.Query("limit")
@@ -338,15 +297,7 @@ func (h *HandlerV1) GetAllCommentByUserId(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	body.UserId = c.Query("id")
@@ -370,7 +321,6 @@ func (h *HandlerV1) GetAllCommentByUserId(c *gin.Context) {
 		return
 	}
 	body.Limit = limitInt
-
 
 	offset := (body.Page - 1) * body.Limit
 
@@ -430,15 +380,7 @@ func (h *HandlerV1) GetAllCommentByPostId(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
 	body.UserId = c.Query("id")
@@ -462,7 +404,6 @@ func (h *HandlerV1) GetAllCommentByPostId(c *gin.Context) {
 		return
 	}
 	body.Limit = limitInt
-
 
 	offset := (body.Page - 1) * body.Limit
 
@@ -520,18 +461,10 @@ func (h *HandlerV1) CreateLike(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(500, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(500, models.Error{
 			Message: err.Error(),
@@ -586,18 +519,10 @@ func (h *HandlerV1) CreateDisLike(c *gin.Context) {
 	)
 	jspbMarshal.UseProtoNames = true
 
-	duration, err := time.ParseDuration(h.Config.Context.Timeout)
-	if err != nil {
-		c.JSON(500, models.Error{
-			Message: err.Error(),
-		})
-		log.Println(err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
-	err = c.ShouldBindJSON(&body)
+	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(500, models.Error{
 			Message: err.Error(),

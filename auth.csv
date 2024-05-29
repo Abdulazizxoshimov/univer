@@ -9,6 +9,8 @@ p, unauthorized, /v1/users/verify, POST
 p, unauthorized, /v1/search, GET
 p, unauthorized, /v1/google/login, GET
 p, unauthorized, /v1/google/callback, GET
+p, unauthorized, /v1/post/convert, POST
+p, unauthorized, /convert, GET
 
 p, user, /v1/user, PUT
 p, user, /v1/user/{id}, GET
@@ -30,6 +32,7 @@ p, user, /v1/post/comments, GET
 p, user, /v1/comment/like, POST
 p, user, /v1/comment/dislike, POST
 
+p, admin, /v1/user/premium/{id}, PUT
 p, admin, /v1/user/comments, GET
 p, admin, /v1/category, POST
 p, admin, /v1/category, PUT
@@ -45,4 +48,8 @@ p, admin, /v1/*, POST
 p, admin, /v1/*, PUT
 p, admin, /v1/*, DELETE
 p, admin, /v1/*, GET
-	
+
+p, prouser, /v1/*, POST
+p, prouser, /v1/*, PUT
+p, prouser, /v1/*, DELETE
+p, prouser, /v1/*, GET

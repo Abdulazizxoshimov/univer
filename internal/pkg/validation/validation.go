@@ -90,3 +90,20 @@ func ValidateUUID(u string) bool {
     _, err := uuid.Parse(u)
     return err == nil
 }
+func ValidateUsername(username string) bool {
+	if len(username) < 3 || len(username) > 20 {
+		return false
+	}
+
+	if !unicode.IsLetter(rune(username[0])) {
+		return false
+	}
+
+	pattern := "^[a-zA-Z0-9_.-]+$"
+	match, _ := regexp.MatchString(pattern, username)
+	if !match {
+		return false
+	}
+
+	return true
+}

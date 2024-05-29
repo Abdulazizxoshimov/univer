@@ -1,22 +1,18 @@
 package image
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
-	"image/png"
 	"io/ioutil"
-	"log"
-	"os"
+
 	"strings"
 
 	"github.com/golang/freetype"
 	"golang.org/x/image/math/fixed"
 )
 
-func Image(userName string, fileName string) {
-
+func Image(userName string) (image.Image, error) {
 	initial := getFirstTwoLetters(userName)
 
 	width := 100
@@ -28,13 +24,11 @@ func Image(userName string, fileName string) {
 
 	fontBytes, err := ioutil.ReadFile("./font/Empire.ttf") // Font faylining yo'lini kiriting
 	if err != nil {
-		log.Println(err)
-		return
+		return nil, err
 	}
 	font, err := freetype.ParseFont(fontBytes)
 	if err != nil {
-		log.Println(err)
-		return
+		return nil, err
 	}
 
 	c := freetype.NewContext()
@@ -47,45 +41,25 @@ func Image(userName string, fileName string) {
 
 	var pt fixed.Point26_6
 
-	if len(initial) == 1{
+	if len(initial) == 1 {
 		pt = freetype.Pt(33, 60) // Textning boshlang'ich nuqtasi
-		_, err = c.DrawString(initial, pt)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-    }else if len(initial) == 2{
+	} else if len(initial) == 2 {
 		pt = freetype.Pt(20, 60) // Textning boshlang'ich nuqtasi
-		_, err = c.DrawString(initial, pt)
-		if err != nil {
-			log.Println(err)
-			return
-		}
 	}
-	uploadDir := "./avatar"
-	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-		os.Mkdir(uploadDir, os.ModePerm)
+	_, err = c.DrawString(initial, pt)
+	if err != nil {
+		return nil, err
 	}
 
-	path := fmt.Sprintf("./avatar/%s.png", fileName)
-	
-	outFile, err := os.Create(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer outFile.Close()
-
-	err = png.Encode(outFile, img)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return img, nil
 }
+
 func getFirstTwoLetters(name string) string {
-		if name[0] == 's' && name[1] == 'h' {
-			return strings.ToUpper(name[:2])
-		} else if name[0] == 'c' && name[1] == 'h' {
-			return strings.ToUpper(name[:2])
-		}
+	if name[0] == 's' && name[1] == 'h' {
+		return strings.ToUpper(name[:2])
+	} else if name[0] == 'c' && name[1] == 'h' {
+		return strings.ToUpper(name[:2])
+	}
 
 	return strings.ToUpper(name[:1])
 }

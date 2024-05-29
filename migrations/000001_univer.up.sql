@@ -2,7 +2,7 @@ CREATE TABLE if NOT EXISTS users (
     id UUID PRIMARY KEY,
     username VARCHAR(64) unique,
     email TEXT NOT NULL,
-    phone_number VARCHAR(20),
+    phone_number VARCHAR(20) unique,
     password TEXT NOT NULL,
     bio TEXT, 
     image_url text,
@@ -33,6 +33,8 @@ CREATE TABLE posts (
     views bigint DEFAULT 0,
     science VARCHAR(50), -- from which subject
     category_id UUID NOT NULL,  -- slayd, mustaqil ish va hk
+    price FLOAT NOT NULL DEFAULT 0,
+    price_status boolean NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMPTZ,
@@ -53,6 +55,7 @@ CREATE TABLE if not exists comments (
     foreign key (owner_id) references users(id),
     foreign key (post_id) references posts(id)
 );
+
 CREATE TABLE likes (
     comment_id UUID not NULL,
     owner_id  uuid not null, 
@@ -62,3 +65,23 @@ CREATE TABLE likes (
     foreign key (post_id)references posts(id),
     foreign key(owner_id) references users(id)
 );
+
+CREATE TABLE views (
+    user_id uuid not null,
+    post_id uuid not null
+); 
+
+CREATE TABLE if not exists comments (
+    id UUID PRIMARY KEY, 
+     owner_id UUID  NOT NULL,
+    post_id UUID NOT NULL, 
+     message text NOT NULL,
+     likes  bigint DEFAULT 0,
+     dislikes bigint DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ,
+    foreign key (owner_id) references users(id),
+    foreign key (post_id) references posts(id)
+);
+

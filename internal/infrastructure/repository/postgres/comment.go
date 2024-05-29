@@ -393,7 +393,6 @@ func (p commentRepo) UpdateCommentLike(ctx context.Context, Id string, status bo
 	} else {
 		query = `update comments set likes = likes - 1 where id = $1`
 	}
-	
 
 	commandTag, err := p.db.Exec(ctx, query, Id)
 	if err != nil {
@@ -417,7 +416,6 @@ func (p commentRepo) UpdateCommentDislike(ctx context.Context, Id string, status
 	} else {
 		query = `update comments set dislikes = dislikes - 1 where id = $1`
 	}
-	
 
 	commandTag, err := p.db.Exec(ctx, query, Id)
 	if err != nil {

@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	viewsTableName          = "views"
 	postServiceTableName    = "posts"
 	serviceNamePostsService = "postServiceRepo"
 	spanNamePostsService    = "postSpanRepo"
@@ -39,6 +40,8 @@ func (p *postRepo) postsSelectQueryPrefix() squirrel.SelectBuilder {
 			"views",
 			"science",
 			"category_id",
+			"price_status",
+			"price",
 			"created_at",
 			"updated_at",
 		).From(p.tableName)
@@ -49,15 +52,17 @@ func (p postRepo) CreatePost(ctx context.Context, post *entity.Post) (*entity.Po
 	defer span.End()
 
 	data := map[string]any{
-		"id":          post.Id,
-		"user_id":     post.UserId,
-		"theme":       post.Theme,
-		"path":        post.Path,
-		"views":       post.Views,
-		"science":     post.Science,
-		"category_id": post.CategoryId,
-		"created_at":  post.CreatedAt,
-		"updated_at":  post.UpdatedAt,
+		"id":           post.Id,
+		"user_id":      post.UserId,
+		"theme":        post.Theme,
+		"path":         post.Path,
+		"views":        post.Views,
+		"science":      post.Science,
+		"category_id":  post.CategoryId,
+		"price_status": post.PriceStatus,
+		"price":        post.Price,
+		"created_at":   post.CreatedAt,
+		"updated_at":   post.UpdatedAt,
 	}
 	query, args, err := p.db.Sq.Builder.Insert(p.tableName).SetMap(data).ToSql()
 	if err != nil {
@@ -78,11 +83,13 @@ func (p postRepo) UpdatePost(ctx context.Context, post *entity.PostUpdateReq) (*
 	defer span.End()
 
 	clauses := map[string]any{
-		"theme":       post.Theme,
-		"path":        post.Path,
-		"science":     post.Science,
-		"category_id": post.CategoryId,
-		"updated_at":  post.UpdatedAt,
+		"theme":        post.Theme,
+		"path":         post.Path,
+		"science":      post.Science,
+		"category_id":  post.CategoryId,
+		"price_status": post.PriceStatus,
+		"price":        post.Price,
+		"updated_at":   post.UpdatedAt,
 	}
 	sqlStr, args, err := p.db.Sq.Builder.
 		Update(p.tableName).
@@ -170,12 +177,13 @@ func (p postRepo) GetPost(ctx context.Context, params map[string]string) (*entit
 		&post.Views,
 		&post.Science,
 		&post.CategoryId,
+		&post.PriceStatus,
+		&post.Price,
 		&post.CreatedAt,
 		&post.UpdatedAt,
 	); err != nil {
 		return nil, p.db.Error(err)
 	}
-	
 
 	return &post, nil
 }
@@ -193,8 +201,8 @@ func (p postRepo) ListPost(ctx context.Context, limit int, offset int, filter ma
 	if limit != 0 {
 		queryBuilder = queryBuilder.Limit(uint64(limit)).Offset(uint64(offset))
 	}
-	for key, value := range filter{
-		if key == "user_id"{
+	for key, value := range filter {
+		if key == "user_id" {
 			queryBuilder = queryBuilder.Where(p.db.Sq.Equal(key, value))
 		}
 		if key == "role" {
@@ -218,7 +226,7 @@ func (p postRepo) ListPost(ctx context.Context, limit int, offset int, filter ma
 	var post entity.Post
 
 	for rows.Next() {
-		
+
 		if err = rows.Scan(
 			&post.Id,
 			&post.UserId,
@@ -227,6 +235,8 @@ func (p postRepo) ListPost(ctx context.Context, limit int, offset int, filter ma
 			&post.Views,
 			&post.Science,
 			&post.CategoryId,
+			&post.PriceStatus,
+			&post.Price,
 			&post.CreatedAt,
 			&post.UpdatedAt,
 		); err != nil {
@@ -255,25 +265,48 @@ func (p postRepo) ListPost(ctx context.Context, limit int, offset int, filter ma
 	return &posts, nil
 }
 
-func (p postRepo)Search(ctx context.Context, req *entity.ListReq)(*entity.PostListRes, error){
-	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService + "Search")
+func (p postRepo) Search(ctx context.Context, req *entity.ListReq) (*entity.PostListRes, error) {
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"Search")
 	defer span.End()
 
 	terms := strings.Fields(req.Filter["theme"])
 	likeClause := "%" + strings.Join(terms, "%") + "%"
+	queryBuilder := p.db.Sq.Builder.
+	Select(
+		"posts.id",
+		"posts.user_id",
+		"posts.theme",
+		"posts.path",
+		"posts.views",
+		"posts.science",
+		"category.name",
+		"posts.price_status",
+		"posts.price",
+		"posts.created_at",
+		"posts.updated_at",
+	).From(p.tableName).
+	Join(categoryServiceTableName + " on posts.category_id = category.id")
+	for key, value := range req.Filter{
+		if key == "theme"{
+			queryBuilder = queryBuilder.Where(p.db.Sq.ILike("posts." + key, likeClause))
+		}else if key == "category_id"{
+			queryBuilder = queryBuilder.Where(p.db.Sq.Equal("posts." + key, value))
+		}else if key == "science"{
+			queryBuilder = queryBuilder.Where(p.db.Sq.Equal("posts." + key, value))
+		}else if key == "price_status"{
+			queryBuilder = queryBuilder.Where(p.db.Sq.Equal("posts." + key, value))
+		}
+	}
+	queryBuilder = queryBuilder.Where("deleted_at is null")
 
-    queryBuilder := p.postsSelectQueryPrefix()
-	queryBuilder = queryBuilder.Where(p.db.Sq.ILike("theme", likeClause)).Where("deleted_at is null")
 
-	 if req.Limit != 0 {
-	 	queryBuilder = queryBuilder.Limit(uint64(req.Limit)).Offset(uint64(req.Offset))
-	 }
+	if req.Limit != 0 {
+		queryBuilder = queryBuilder.Limit(uint64(req.Limit)).Offset(uint64(req.Offset))
+	}
 	sqlStr, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("SQL build error: %w", err)
 	}
-
-
 	rows, err := p.db.Query(ctx, sqlStr, args...)
 	if err != nil {
 		return nil, p.db.Error(err)
@@ -281,7 +314,7 @@ func (p postRepo)Search(ctx context.Context, req *entity.ListReq)(*entity.PostLi
 	defer rows.Close()
 
 	posts := entity.PostListRes{}
-	for rows.Next(){
+	for rows.Next() {
 		var post entity.Post
 		err = rows.Scan(
 			&post.Id,
@@ -291,10 +324,12 @@ func (p postRepo)Search(ctx context.Context, req *entity.ListReq)(*entity.PostLi
 			&post.Views,
 			&post.Science,
 			&post.CategoryId,
+			&post.PriceStatus,
+			&post.Price,
 			&post.CreatedAt,
 			&post.UpdatedAt,
 		)
-		if err != nil{
+		if err != nil {
 			return nil, p.db.Error(err)
 		}
 		posts.Post = append(posts.Post, &post)
@@ -317,4 +352,66 @@ func (p postRepo)Search(ctx context.Context, req *entity.ListReq)(*entity.PostLi
 
 	return &posts, nil
 
+}
+
+func (p postRepo) CheckUnique(ctx context.Context, UserId, PostId string) (bool, error) {
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"checkUnique")
+	defer span.End()
+
+	queryBuilder := p.db.Sq.Builder.Select("COUNT(1)").
+		From(viewsTableName).
+		Where(squirrel.Eq{"post_id": PostId, "user_id": UserId})
+
+	query, args, err := queryBuilder.ToSql()
+
+	if err != nil {
+		return false, p.db.ErrSQLBuild(err, fmt.Sprintf("%s %s", likeTableName, "checkUnique"))
+	}
+
+	var count int
+
+	if err = p.db.QueryRow(ctx, query, args...).Scan(&count); err != nil {
+		return false, p.db.Error(err)
+
+	}
+	if count != 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (p postRepo) CreateViews(ctx context.Context, userId, postId string) (bool, error) {
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"CreateViews")
+	defer span.End()
+	clauses := map[string]any{
+		"user_id": userId,
+		"post_id": postId,
+	}
+	query, args, err := p.db.Sq.Builder.Insert(viewsTableName).SetMap(clauses).ToSql()
+	if err != nil {
+		return false, p.db.ErrSQLBuild(err, fmt.Sprintf("%s %s", p.tableName, "create"))
+	}
+	_, err = p.db.Exec(ctx, query, args...)
+	if err != nil {
+		return false, p.db.Error(err)
+	}
+
+	return true, nil
+}
+func (p postRepo) UpdateViews(ctx context.Context, postId string) (bool, error) {
+	ctx, span := otlp.Start(ctx, serviceNamePostsService, spanNamePostsService+"UpdateViews")
+	defer span.End()
+
+	query := `UPDATE posts SET views = views + 1 WHERE id = $1`
+
+	commandTag, err := p.db.Exec(ctx, query, postId)
+	if err != nil {
+		return false, p.db.Error(err)
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return false, p.db.Error(fmt.Errorf("no sql rows"))
+	}
+
+	return true, nil
 }
