@@ -50,5 +50,5 @@ jobs:
           username: ${{ env.SERVER_USERNAME }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
-            docker-compose -f ~/docker-compose.yaml down
-            docker-compose -f ~/docker-compose.yaml up -d
+            sudo docker-compose -f ~/docker-compose.yaml pull
+            sudo docker-compose -f ~/docker-compose.yaml up -d
