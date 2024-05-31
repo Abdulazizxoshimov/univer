@@ -10,8 +10,8 @@ env:
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_IMAGE_NAME: univer
   DOCKER_IMAGE_TAG: latest
-  SERVER_HOST: 13.201.56.179
-  SERVER_USERNAME: ubuntu
+  SERVER_HOST: ${{ secrets.SERVER_HOST }}
+  SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
   SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
   DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
   DATABASE_USER: ${{ secrets.DATABASE_USER }}
@@ -35,14 +35,20 @@ jobs:
           docker buildx create --use --name mybuilder
           docker buildx build --platform linux/amd64,linux/arm64 --push -t $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
 
-      - name: Deploy Docker image to server
+      - name: Copy docker-compose file to server
+        uses: appleboy/scp-action@master
+        with:
+          source: ./docker-compose.yaml
+          target: ${{ env.SERVER_USERNAME }}@${{ env.SERVER_HOST }}:~/docker-compose.yaml
+          key: ${{ env.SSH_PRIVATE_KEY }}
+          strip_components: 1
+
+      - name: Deploy using docker-compose
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.SERVER_HOST }}
           username: ${{ env.SERVER_USERNAME }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
-            sudo docker stop univer || true
-            sudo docker rm univer || true
-            sudo docker image rm ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} || true
-            sudo docker run -d --name univer -e POSTGRES_HOST=${{ env.DATABASE_HOST }} -e POSTGRES_USER=${{ env.DATABASE_USER }} -e POSTGRES_PASSWORD=${{ env.DATABASE_PASSWORD }} -p 7777:7777 ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+            docker-compose -f ~/docker-compose.yaml down
+            docker-compose -f ~/docker-compose.yaml up -d
