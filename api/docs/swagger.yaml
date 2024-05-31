@@ -194,8 +194,6 @@ definitions:
         type: string
       id:
         type: string
-      password:
-        type: string
       phoneNumber:
         type: string
       userName:
@@ -1184,6 +1182,10 @@ paths:
             $ref: '#/definitions/models.User'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/models.Error'
         "500":

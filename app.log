@@ -696,3 +696,7 @@ main.main.func1
 2024-05-29T19:13:40.030+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
 2024-05-29T19:23:15.958+0500	INFO	app/main.go:41	api gateway service stops
 2024-05-29T19:28:04.254+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-31T20:40:09.971+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-31T21:54:02.587+0500	INFO	app/main.go:41	api gateway service stops
+2024-05-31T21:54:07.412+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-05-31T21:54:13.301+0500	INFO	app/main.go:41	api gateway service stops

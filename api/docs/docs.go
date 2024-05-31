@@ -1458,6 +1458,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Error"
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2713,9 +2719,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "phoneNumber": {
