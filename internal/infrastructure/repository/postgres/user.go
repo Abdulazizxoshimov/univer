@@ -9,7 +9,6 @@ import (
 	postgres "univer/internal/pkg/storage"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/k0kubun/pp"
 )
 
 const (
@@ -325,9 +324,7 @@ func (p userRepo) CheckUnique(ctx context.Context, filter *entity.GetReq) (bool,
 	if err != nil {
 		return false, p.db.ErrSQLBuild(err, fmt.Sprintf("%s %s", p.tableName, "isUnique"))
 	}
-	pp.Println(query)
-	pp.Println(args...)
-
+	
 	var count int
 	err = p.db.QueryRow(ctx, query, args...).Scan(&count)
 	if err != nil {

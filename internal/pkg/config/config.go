@@ -132,7 +132,7 @@ func NewConfig() (*Config, error) {
 	//minIO configuration
 	config.Minio.AccessKeyID = getEnv("ACCES_KEY_ID", "xoshimov")
 	config.Minio.SecretAcessKey = getEnv("SECRET_ACCES_KEY", "xoshimov")
-	config.Minio.Endpoint = getEnv("ENDPOINT", "127.0.0.1:9000")
+	config.Minio.Endpoint = getEnv("ENDPOINT", "minio:9000")
 	config.Minio.FileUploadBucketName = getEnv("FILE_UPLOAD_BUCKET_NAME", "univer")
 	config.Minio.ImageUrlUploadBucketName = getEnv("IMAGE_URL_UPLOAD_BUCKET_NAME", "univer-image")
 

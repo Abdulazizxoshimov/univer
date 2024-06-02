@@ -37,7 +37,6 @@ func SendCodeGmail(userEmail string, subject string, htmlpath string, cfg config
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 	msg := []byte(fmt.Sprintf("Subject: %s", subject) + mime + k.String())
 	// Authentication.
-	fmt.Println(cfg.SMTP.Email, cfg.SMTP.EmailPassword, cfg.SMTP.SMTPHost)
 	auth := smtp.PlainAuth("", cfg.SMTP.Email, cfg.SMTP.EmailPassword, cfg.SMTP.SMTPHost)
 
 	// Sending email.

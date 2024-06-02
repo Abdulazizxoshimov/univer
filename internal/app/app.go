@@ -17,6 +17,7 @@ import (
 
 	defaultrolemanager "github.com/casbin/casbin/v2/rbac/default-role-manager"
 	"github.com/casbin/casbin/v2/util"
+	"github.com/k0kubun/pp"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"go.uber.org/zap"
@@ -68,6 +69,7 @@ func NewApp(cfg config.Config) (*App, error) {
 		Secure: false,
 	})
 	if err != nil {
+		pp.Println("minIO da xatolik yuzakaga keldi")
 		return nil, err
 	}
 
@@ -127,10 +129,13 @@ func (a *App) Run() error {
 
 	err := minIOBucket.MinIOBucket(a.Config.Minio.FileUploadBucketName, a.minIO)
 	if err != nil {
+		pp.Println(a.Config.Minio.FileUploadBucketName)
+		pp.Println("minIOda file bucket da xatolik bor")
 		return err
 	}
 	err = minIOBucket.MinIOBucket(a.Config.Minio.ImageUrlUploadBucketName, a.minIO)
 	if err != nil {
+		pp.Println("minIO da image bucketda xatolik bor ")
 		return err
 	}
 

@@ -41,6 +41,8 @@ services:
       - univer
     depends_on:
       - redisdb
+      - postgresdb
+      - minio
 
   redisdb:
     container_name: redisdb
@@ -59,7 +61,6 @@ services:
     environment:
       - MINIO_ROOT_USER=xoshimov
       - MINIO_ROOT_PASSWORD=xoshimov
-      - MINIO_DEFAULT_BUCKETS=univer
     volumes:
       - minio_data:/data
     networks:

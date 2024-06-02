@@ -118,7 +118,7 @@ func (h *HandlerV1) CreatePost(c *gin.Context) {
 		return
 	}
 
-	minioURL := fmt.Sprintf("http://%s/%s/%s", h.Config.Minio.Endpoint, h.Config.Minio.FileUploadBucketName, objectName)
+	minioURL := fmt.Sprintf("http://http://localhost:9000/%s/%s", h.Config.Minio.FileUploadBucketName, objectName)
 
 	userId, statusCode := GetIdFromToken(c.Request, &h.Config)
 	if statusCode != 0 {

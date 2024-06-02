@@ -559,7 +559,7 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	minioURL := fmt.Sprintf("http://%s/%s/%s", h.Config.Minio.Endpoint, h.Config.Minio.ImageUrlUploadBucketName, objectName)
+	minioURL := fmt.Sprintf("http://http://localhost:9000/%s/%s", h.Config.Minio.ImageUrlUploadBucketName, objectName)
 
 	_, err = h.Service.User().UpdateProfile(ctx, &entity.UpdateProfile{
 		Id:       userId,
