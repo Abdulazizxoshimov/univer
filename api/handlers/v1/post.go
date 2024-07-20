@@ -13,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // @Security      BearerAuth
@@ -37,9 +36,7 @@ func (h *HandlerV1) CreatePost(c *gin.Context) {
 	var (
 		file        models.File
 		body        models.PostCreate
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -118,7 +115,7 @@ func (h *HandlerV1) CreatePost(c *gin.Context) {
 		return
 	}
 
-	minioURL := fmt.Sprintf("http://http://localhost:9000/%s/%s", h.Config.Minio.FileUploadBucketName, objectName)
+	minioURL := fmt.Sprintf("http://localhost:9000/%s/%s", h.Config.Minio.FileUploadBucketName, objectName)
 
 	userId, statusCode := GetIdFromToken(c.Request, &h.Config)
 	if statusCode != 0 {
@@ -194,9 +191,7 @@ func (h *HandlerV1) CreatePost(c *gin.Context) {
 func (h *HandlerV1) UpdatePost(c *gin.Context) {
 	var (
 		body        models.PostUpdateReq
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -274,10 +269,6 @@ func (h *HandlerV1) UpdatePost(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/post/{id} [DELETE]
 func (h *HandlerV1) DeletePost(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -312,11 +303,6 @@ func (h *HandlerV1) DeletePost(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/post/{id} [GET]
 func (h *HandlerV1) GetPost(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
@@ -371,10 +357,6 @@ func (h *HandlerV1) GetPost(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/del/post/{id} [GET]
 func (h *HandlerV1) GetDelPost(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -424,10 +406,6 @@ func (h *HandlerV1) GetDelPost(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/posts [GET]
 func (h *HandlerV1) ListPost(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -504,10 +482,7 @@ func (h *HandlerV1) ListPost(c *gin.Context) {
 func (h *HandlerV1) GetAllPostByUserId(c *gin.Context) {
 	var (
 		body        models.GetAll
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
-
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	body.UserId = c.Query("id")

@@ -39,3 +39,17 @@ main.main.func1
 2024-06-02T04:03:58.079+0500	INFO	app/main.go:41	api gateway service stops
 2024-06-02T04:04:01.915+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
 2024-06-02T04:04:05.811+0500	INFO	app/main.go:41	api gateway service stops
+2024-07-06T18:24:27.514+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-07-06T18:24:32.526+0500	ERROR	app/main.go:32	app run	{"error": "Put \"http://minio:9000/univer/\": dial tcp: lookup minio on 127.0.0.53:53: server misbehaving"}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-07-06T18:30:12.263+0500	INFO	app/main.go:41	api gateway service stops
+2024-07-06T18:30:19.886+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-07-06T18:30:23.586+0500	ERROR	app/main.go:32	app run	{"error": "Put \"http://minio:9000/univer/\": dial tcp: lookup minio on 127.0.0.53:53: server misbehaving"}
+main.main.func1
+	/home/abudlaziz/project/go/src/univer/cmd/app/main.go:32
+2024-07-06T18:34:14.905+0500	INFO	app/main.go:41	api gateway service stops
+2024-07-06T18:34:20.065+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-07-06T18:47:47.653+0500	INFO	app/main.go:41	api gateway service stops
+2024-07-06T18:51:17.641+0500	INFO	app/main.go:30	Listen: 	{"address": "localhost:7777"}
+2024-07-06T22:33:39.503+0500	INFO	app/main.go:41	api gateway service stops

@@ -9,7 +9,6 @@ import (
 	"univer/internal/entity"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // @Security      BearerAuth
@@ -27,9 +26,7 @@ import (
 func (h *HandlerV1) CreateComment(c *gin.Context) {
 	var (
 		body        models.CommentCreate
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -81,9 +78,7 @@ func (h *HandlerV1) CreateComment(c *gin.Context) {
 func (h *HandlerV1) UpdateComment(c *gin.Context) {
 	var (
 		body        models.CommentUpdate
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -129,11 +124,7 @@ func (h *HandlerV1) UpdateComment(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/comment/{id} [DELETE]
 func (h *HandlerV1) DeleteComment(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
+	
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
@@ -167,11 +158,7 @@ func (h *HandlerV1) DeleteComment(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/comment/{id} [GET]
 func (h *HandlerV1) GetComment(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
+	
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
@@ -216,11 +203,7 @@ func (h *HandlerV1) GetComment(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/comments [GET]
 func (h *HandlerV1) ListComment(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
+	
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	page := c.Query("page")
@@ -293,9 +276,7 @@ func (h *HandlerV1) ListComment(c *gin.Context) {
 func (h *HandlerV1) GetAllCommentByUserId(c *gin.Context) {
 	var (
 		body        models.GetAll
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -376,9 +357,7 @@ func (h *HandlerV1) GetAllCommentByUserId(c *gin.Context) {
 func (h *HandlerV1) GetAllCommentByPostId(c *gin.Context) {
 	var (
 		body        models.GetAll
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -457,9 +436,7 @@ func (h *HandlerV1) GetAllCommentByPostId(c *gin.Context) {
 func (h *HandlerV1) CreateLike(c *gin.Context) {
 	var (
 		body        models.CreateLike
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -515,9 +492,7 @@ func (h *HandlerV1) CreateLike(c *gin.Context) {
 func (h *HandlerV1) CreateDisLike(c *gin.Context) {
 	var (
 		body        models.CreateLike
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()

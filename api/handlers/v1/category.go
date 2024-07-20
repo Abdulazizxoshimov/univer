@@ -9,7 +9,6 @@ import (
 	"univer/internal/entity"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // @Security 		BearerAuth
@@ -28,9 +27,7 @@ import (
 func (h *HandlerV1) CreateCategory(c *gin.Context) {
 	var (
 		body        models.CategoryReq
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -77,9 +74,7 @@ func (h *HandlerV1) CreateCategory(c *gin.Context) {
 func (h *HandlerV1) UpdateCategory(c *gin.Context) {
 	var (
 		body        models.Category
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -125,11 +120,7 @@ func (h *HandlerV1) UpdateCategory(c *gin.Context) {
 // @Faulure 		500 {object} models.Error
 // @Router 			/v1/category/{id} [DELETE]
 func (h *HandlerV1) DeleteCategory(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
+	
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
@@ -163,11 +154,7 @@ func (h *HandlerV1) DeleteCategory(c *gin.Context) {
 // @Faulure 		500 {object} models.Error
 // @Router 			/v1/category/{id} [GET]
 func (h *HandlerV1) GetCategory(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
+	
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
@@ -209,11 +196,7 @@ func (h *HandlerV1) GetCategory(c *gin.Context) {
 // @Faulure 		500 {object} models.Error
 // @Router 			/v1/categories [GET]
 func (h *HandlerV1) ListCategory(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
+	
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 

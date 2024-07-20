@@ -9,7 +9,6 @@ import (
 	"univer/internal/entity"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // @Security  		BearerAuth
@@ -31,11 +30,6 @@ import (
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/search [GET]
 func (h *HandlerV1) Search(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	theme := c.Query("theme")

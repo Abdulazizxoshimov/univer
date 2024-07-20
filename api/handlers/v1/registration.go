@@ -21,7 +21,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/spf13/cast"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // @Summary 		Register
@@ -41,10 +40,7 @@ func (h *HandlerV1) Register(c *gin.Context) {
 
 	var (
 		body        models.UserRegister
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
-
 	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Error{
@@ -80,16 +76,14 @@ func (h *HandlerV1) Register(c *gin.Context) {
 		return
 	}
 
-	
 	usernameStatus := validation.ValidateUsername(body.UserName)
-	if !usernameStatus{
+	if !usernameStatus {
 		c.JSON(http.StatusBadRequest, models.Error{
 			Message: "Username is invalid!!!",
 		})
 		log.Println("Username is invalid!!!")
 		return
-	} 
-	
+	}
 
 	filter := map[string]string{
 		"email": body.Email,
@@ -249,7 +243,7 @@ func (h *HandlerV1) Verify(c *gin.Context) {
 		return
 	}
 
-	minioURL := fmt.Sprintf("http://http://localhost:9000/%s/%s", h.Config.Minio.ImageUrlUploadBucketName, objectName)
+	minioURL := fmt.Sprintf("http://localhost:9000/%s/%s", h.Config.Minio.ImageUrlUploadBucketName, objectName)
 
 	_, err = h.Service.User().CreateUser(ctx, &entity.User{
 		Id:           id,
@@ -406,7 +400,7 @@ func (h *HandlerV1) Forgot(c *gin.Context) {
 		return
 	}
 	filter := map[string]string{
-		"email" : email,
+		"email": email,
 	}
 
 	status, err := h.Service.User().CheckUnique(ctx, &entity.GetReq{

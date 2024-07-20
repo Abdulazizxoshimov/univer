@@ -17,7 +17,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // @Security  		BearerAuth
@@ -36,9 +35,7 @@ import (
 func (h *HandlerV1) CreateUser(c *gin.Context) {
 	var (
 		body        models.UserRegister
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -140,9 +137,7 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 func (h *HandlerV1) UpdateUser(c *gin.Context) {
 	var (
 		body        models.UpdateReq
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -245,11 +240,6 @@ func (h *HandlerV1) UpdateUser(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/user/{id} [DELETE]
 func (h *HandlerV1) DeleteUser(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
@@ -302,10 +292,6 @@ func (h *HandlerV1) DeleteUser(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/user/{id} [GET]
 func (h *HandlerV1) GetUser(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -359,11 +345,6 @@ func (h *HandlerV1) GetUser(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/del/user/{id} [GET]
 func (h *HandlerV1) GetDelUser(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 
@@ -409,11 +390,6 @@ func (h *HandlerV1) GetDelUser(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/users [GET]
 func (h *HandlerV1) ListUsers(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 	page := c.Query("page")
@@ -486,10 +462,6 @@ func (h *HandlerV1) ListUsers(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/user/profile [PUT]
 func (h *HandlerV1) UpdateProfile(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -559,7 +531,7 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	minioURL := fmt.Sprintf("http://http://localhost:9000/%s/%s", h.Config.Minio.ImageUrlUploadBucketName, objectName)
+	minioURL := fmt.Sprintf("http://localhost:9000/%s/%s", h.Config.Minio.ImageUrlUploadBucketName, objectName)
 
 	_, err = h.Service.User().UpdateProfile(ctx, &entity.UpdateProfile{
 		Id:       userId,
@@ -594,9 +566,7 @@ func (h *HandlerV1) UpdateProfile(c *gin.Context) {
 func (h *HandlerV1) UpdatePassword(c *gin.Context) {
 	var (
 		body        models.UpdatePasswordReq
-		jspbMarshal protojson.MarshalOptions
 	)
-	jspbMarshal.UseProtoNames = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
@@ -640,11 +610,6 @@ func (h *HandlerV1) UpdatePassword(c *gin.Context) {
 // @Failure 		500 {object} models.Error
 // @Router 			/v1/user/premium/{id} [PUT]
 func (h *HandlerV1) UpdateToPremium(c *gin.Context) {
-	var (
-		jspbMarshal protojson.MarshalOptions
-	)
-	jspbMarshal.UseProtoNames = true
-
 	ctx, cancel := context.WithTimeout(context.Background(), h.Config.Context.Timeout)
 	defer cancel()
 

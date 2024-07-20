@@ -77,7 +77,7 @@ func NewConfig() (*Config, error) {
 	config.LogLevel = getEnv("LOG_LEVEL", "debug")
 
 	// server configuration
-	config.Server.Host = getEnv("SERVER_HOST", "app")  //app
+	config.Server.Host = getEnv("SERVER_HOST", "localhost")  //app
 	config.Server.Port = getEnv("SERVER_PORT", ":7777")
 	config.Server.ReadTimeout = getEnv("SERVER_READ_TIMEOUT", "10s")
 	config.Server.WriteTimeout = getEnv("SERVER_WRITE_TIMEOUT", "10s")
@@ -92,7 +92,7 @@ func NewConfig() (*Config, error) {
 	config.Context.Timeout = ContexTimeout
 
 	// db configuration
-	config.DB.Host = getEnv("POSTGRES_HOST", "postgres") // postgres
+	config.DB.Host = getEnv("POSTGRES_HOST", "localhost") // postgres
 	config.DB.Port = getEnv("POSTGRES_PORT", "5432")
 	config.DB.User = getEnv("POSTGRES_USER", "postgres")
 	config.DB.Password = getEnv("POSTGRES_PASSWORD", "4444")
@@ -118,7 +118,7 @@ func NewConfig() (*Config, error) {
 	config.OTLPCollector.Port = getEnv("OTLP_COLLECTOR_PORT", ":4318")
 
 	// redis configuration
-	config.Redis.Host = getEnv("REDIS_HOST", "redisdb")  //redisdb
+	config.Redis.Host = getEnv("REDIS_HOST", "localhost")  //redisdb
 	config.Redis.Port = getEnv("REDIS_PORT", "6379")
 	config.Redis.Password = getEnv("REDIS_PASSWORD", "")
 	config.Redis.Name = getEnv("REDIS_DATABASE", "0")
@@ -132,7 +132,7 @@ func NewConfig() (*Config, error) {
 	//minIO configuration
 	config.Minio.AccessKeyID = getEnv("ACCES_KEY_ID", "xoshimov")
 	config.Minio.SecretAcessKey = getEnv("SECRET_ACCES_KEY", "xoshimov")
-	config.Minio.Endpoint = getEnv("ENDPOINT", "minio:9000")
+	config.Minio.Endpoint = getEnv("ENDPOINT", "localhost:9000")  // minio:9000
 	config.Minio.FileUploadBucketName = getEnv("FILE_UPLOAD_BUCKET_NAME", "univer")
 	config.Minio.ImageUrlUploadBucketName = getEnv("IMAGE_URL_UPLOAD_BUCKET_NAME", "univer-image")
 
